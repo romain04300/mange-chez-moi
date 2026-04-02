@@ -100,17 +100,15 @@ function EcranChercher({ setEcran, user }) {
   }, [])
 
 async function reserver(repasId) {
-  console.log('réservation pour repas:', repasId, 'user:', user.id)
-  const { error } = await supabase.from('reservations').insert({
-    repas_id: repasId,
-    user_id: user.id
-  })
-  if (error) { setMessage('Erreur : ' + error.message) }
-  else { 
-    console.log('succès !')
-    setMessage('Réservation confirmée ! 🎉') 
+    console.log('réservation pour repas:', repasId, 'user:', user.id)
+    const { error } = await supabase.from('reservations').insert({
+      repas_id: repasId,
+      user_id: user.id
+    })
+    console.log('erreur:', error)
+    if (error) { setMessage('Erreur : ' + error.message) }
+    else { setMessage('Réservation confirmée ! 🎉') }
   }
-}
 
   return (
     <div>
@@ -389,7 +387,7 @@ function EcranConnexion({ setEcran, setUser }) {
     <div style={{minHeight:'100vh', background:'#FFF8F0', display:'flex', flexDirection:'column'}}>
       <div style={{background:'#FF6B35', padding:'40px 24px 30px', textAlign:'center'}}>
         <div style={{fontFamily:'Pacifico, cursive', fontSize:'28px', color:'#fff', marginBottom:'8px'}}>Mange Chez Moi</div>
-        <div style={{fontSize:'13px', color:'rgba(255,255,255,0.8)', fontWeight:'600'}}>Repas chez l'habitant à Marseille</div>
+        <div style={{fontSize:'13px', color:'rgba(255,255,255,0.8)', fontWeight:'600'}}>Repas chez l'habitant </div>
       </div>
       <div style={{padding:'24px 20px', flex:1}}>
         <div style={{display:'flex', background:'#FFE5D0', borderRadius:'12px', padding:'3px', marginBottom:'20px'}}>
