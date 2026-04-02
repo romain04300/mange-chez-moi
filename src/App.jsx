@@ -273,7 +273,16 @@ function EcranClassement({ setEcran }) {
   )
 }
 
-function EcranProfil({ setEcran, setUser }) {
+function EcranProfil({ setEcran, setUser, user }) {
+  const [profil, setProfil] = useState(null)
+
+  useEffect(() => {
+    async function chargerProfil() {
+      const { data } = await supabase.from('profils').select('*').eq('id', user.id).single()
+      setProfil(data)
+    }
+    chargerProfil()
+  }, [])
   return (
     <div>
       <div style={{background:'#FF6B35', padding:'10px 16px 24px'}}>
@@ -283,7 +292,7 @@ function EcranProfil({ setEcran, setUser }) {
         </div>
         <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:'8px'}}>
           <div style={{width:'72px', height:'72px', borderRadius:'50%', background:'#FFE5D0', border:'3px solid #fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'32px'}}>👨</div>
-          <div style={{fontSize:'17px', fontWeight:'800', color:'#fff'}}>Karim Benali</div>
+      <div style={{fontSize:'17px', fontWeight:'800', color:'#fff'}}>{profil?.prenom || user?.email}</div>
           <div style={{fontSize:'12px', color:'rgba(255,255,255,0.8)', fontWeight:'600'}}>📍 Marseille 13001</div>
           <div style={{display:'flex', gap:'6px'}}>
             <div style={{background:'#FFD600', color:'#412402', fontSize:'10px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px'}}>Super hôte</div>
@@ -331,15 +340,19 @@ function EcranProfil({ setEcran, setUser }) {
 function EcranConnexion({ setEcran, setUser }) {
   const [email, setEmail] = useState('')
   const [motdepasse, setMotdepasse] = useState('')
+  const [prenom, setPrenom] = useState('')
   const [erreur, setErreur] = useState('')
   const [mode, setMode] = useState('connexion')
 
   async function handleSubmit() {
     setErreur('')
     if (mode === 'inscription') {
-      const { error } = await supabase.auth.signUp({ email, password: motdepasse })
+      const { data, error } = await supabase.auth.signUp({ email, password: motdepasse })
       if (error) { setErreur(error.message) }
-      else { setErreur('Vérifie tes emails pour confirmer ton compte !') }
+      else {
+        await supabase.from('profils').insert({ id: data.user.id, prenom, ville: 'Marseille' })
+        setErreur('Compte créé ! Tu peux te connecter.')
+      }
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password: motdepasse })
       if (error) { setErreur('Email ou mot de passe incorrect') }
@@ -358,6 +371,14 @@ function EcranConnexion({ setEcran, setUser }) {
           <div onClick={() => setMode('connexion')} style={{flex:1, padding:'8px', textAlign:'center', borderRadius:'10px', background: mode === 'connexion' ? '#FF6B35' : 'transparent', color: mode === 'connexion' ? '#fff' : '#888', fontSize:'13px', fontWeight:'700', cursor:'pointer'}}>Connexion</div>
           <div onClick={() => setMode('inscription')} style={{flex:1, padding:'8px', textAlign:'center', borderRadius:'10px', background: mode === 'inscription' ? '#FF6B35' : 'transparent', color: mode === 'inscription' ? '#fff' : '#888', fontSize:'13px', fontWeight:'700', cursor:'pointer'}}>Inscription</div>
         </div>
+
+        {mode === 'inscription' && (
+          <div style={{marginBottom:'14px'}}>
+            <div style={{fontSize:'12px', fontWeight:'700', color:'#888', marginBottom:'6px', textTransform:'uppercase', letterSpacing:'0.4px'}}>Prénom</div>
+            <input value={prenom} onChange={(e) => setPrenom(e.target.value)} placeholder="Ton prénom" style={{width:'100%', background:'#FFF8F0', border:'1.5px solid #FFE5D0', borderRadius:'12px', padding:'11px 13px', fontFamily:'Nunito, sans-serif', fontSize:'13px', outline:'none'}}/>
+          </div>
+        )}
+
         <div style={{marginBottom:'14px'}}>
           <div style={{fontSize:'12px', fontWeight:'700', color:'#888', marginBottom:'6px', textTransform:'uppercase', letterSpacing:'0.4px'}}>Email</div>
           <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ton@email.com" style={{width:'100%', background:'#FFF8F0', border:'1.5px solid #FFE5D0', borderRadius:'12px', padding:'11px 13px', fontFamily:'Nunito, sans-serif', fontSize:'13px', outline:'none'}}/>
@@ -396,7 +417,7 @@ function App() {
       {ecran === 'mesrepas' && <EcranMesRepas setEcran={setEcran} />}
       {ecran === 'creerrepas' && <EcranCreerRepas setEcran={setEcran} />}
       {ecran === 'classement' && <EcranClassement setEcran={setEcran} />}
-      {ecran === 'profil' && <EcranProfil setEcran={setEcran} setUser={setUser} />}
+      {ecran === 'profil' && <EcranProfil setEcran={setEcran} setUser={setUser} user={user} />}
       <Nav ecran={ecran} setEcran={setEcran} />
     </div>
   )
