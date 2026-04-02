@@ -85,9 +85,10 @@ function EcranAccueil({ setEcran }) {
   )
 }
 
-function EcranChercher({ setEcran }) {
+function EcranChercher({ setEcran, user }) {
   const [repas, setRepas] = useState([])
   const [erreur, setErreur] = useState('')
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     async function chargerRepas() {
@@ -97,6 +98,19 @@ function EcranChercher({ setEcran }) {
     }
     chargerRepas()
   }, [])
+
+async function reserver(repasId) {
+  console.log('réservation pour repas:', repasId, 'user:', user.id)
+  const { error } = await supabase.from('reservations').insert({
+    repas_id: repasId,
+    user_id: user.id
+  })
+  if (error) { setMessage('Erreur : ' + error.message) }
+  else { 
+    console.log('succès !')
+    setMessage('Réservation confirmée ! 🎉') 
+  }
+}
 
   return (
     <div>
@@ -109,9 +123,20 @@ function EcranChercher({ setEcran }) {
       </div>
       <div style={{padding:'14px 16px'}}>
         {erreur && <div style={{color:'red', fontSize:'12px', marginBottom:'10px'}}>{erreur}</div>}
+        {message && <div style={{background:'#E0F5E8', color:'#085041', fontSize:'12px', fontWeight:'600', padding:'10px 12px', borderRadius:'10px', marginBottom:'10px'}}>{message}</div>}
         <div style={{fontSize:'14px', fontWeight:'800', marginBottom:'12px'}}>{repas.length} repas disponibles</div>
         {repas.map((r) => (
-          <CarteRepas key={r.id} emoji={r.emoji} titre={r.titre} date={r.date} couleur={r.couleur} badge={r.badge} couleurBadge={r.couleur}/>
+          <div key={r.id} style={{background:'#fff', borderRadius:'16px', border:'1.5px solid #FFE5D0', overflow:'hidden', marginBottom:'10px'}}>
+            <div style={{height:'72px', background: r.couleur, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'40px'}}>{r.emoji}</div>
+            <div style={{padding:'10px 12px'}}>
+              <div style={{fontSize:'13px', fontWeight:'800', color:'#222', marginBottom:'2px'}}>{r.titre}</div>
+              <div style={{fontSize:'11px', color:'#888', fontWeight:'600', marginBottom:'6px'}}>{r.date} · {r.prix} €/pers</div>
+              <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+                <div style={{fontSize:'10px', fontWeight:'700', padding:'3px 8px', borderRadius:'20px', background: r.couleur, color:'#D04A10'}}>{r.badge}</div>
+                <div onClick={() => reserver(r.id)} style={{background:'#FF6B35', color:'#fff', fontSize:'11px', fontWeight:'700', padding:'6px 14px', borderRadius:'20px', cursor:'pointer'}}>Réserver</div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>
@@ -413,7 +438,7 @@ function App() {
   return (
     <div>
       {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} />}
-      {ecran === 'chercher' && <EcranChercher setEcran={setEcran} />}
+      {ecran === 'chercher' && <EcranChercher setEcran={setEcran} user={user} />}
       {ecran === 'mesrepas' && <EcranMesRepas setEcran={setEcran} />}
       {ecran === 'creerrepas' && <EcranCreerRepas setEcran={setEcran} />}
       {ecran === 'classement' && <EcranClassement setEcran={setEcran} />}
