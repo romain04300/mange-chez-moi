@@ -1397,6 +1397,7 @@ function EcranConnexion({ setEcran, setUser }) {
   const [prenom, setPrenom] = useState('')
   const [erreur, setErreur] = useState('')
   const [mode, setMode] = useState('connexion')
+  const [voirMdp, setVoirMdp] = useState(false)
 
   async function handleSubmit() {
     setErreur('')
@@ -1562,22 +1563,38 @@ function EcranConnexion({ setEcran, setUser }) {
           >
             Mot de passe
           </div>
-          <input
-            value={motdepasse}
-            onChange={(e) => setMotdepasse(e.target.value)}
-            type="password"
-            placeholder="••••••••"
-            style={{
-              width: '100%',
-              background: '#FFF8F0',
-              border: '1.5px solid #FFE5D0',
-              borderRadius: '12px',
-              padding: '11px 13px',
-              fontFamily: 'Nunito, sans-serif',
-              fontSize: '13px',
-              outline: 'none',
-            }}
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              value={motdepasse}
+              onChange={(e) => setMotdepasse(e.target.value)}
+              type={voirMdp ? 'text' : 'password'}
+              placeholder="••••••••"
+              style={{
+                width: '100%',
+                background: '#FFF8F0',
+                border: '1.5px solid #FFE5D0',
+                borderRadius: '12px',
+                padding: '11px 13px',
+                paddingRight: '40px',
+                fontFamily: 'Nunito, sans-serif',
+                fontSize: '13px',
+                outline: 'none',
+              }}
+            />
+            <div
+              onClick={() => setVoirMdp(!voirMdp)}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer',
+                fontSize: '16px',
+              }}
+            >
+              {voirMdp ? '🙈' : '👁️'}
+            </div>
+          </div>
         </div>
         {erreur && (
           <div
