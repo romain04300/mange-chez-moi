@@ -381,20 +381,20 @@ useEffect(() => {
         ))}
       </div>
       <div style={{padding:'14px 16px'}}>
-        <div style={{fontSize:'13px', fontWeight:'800', color:'#222', marginBottom:'12px'}}>Derniers avis reçus</div>
-        <div style={{background:'#FFF8F0', borderRadius:'14px', padding:'12px', marginBottom:'10px'}}>
-          <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'6px'}}>
-            <div style={{width:'30px', height:'30px', borderRadius:'50%', background:'#FFE5D0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px'}}>👩</div>
-            <div>
-              <div style={{fontSize:'12px', fontWeight:'800', color:'#222'}}>Sophie M.</div>
-              <div style={{color:'#FFD600', fontSize:'11px'}}>★★★★★</div>
-            </div>
-            <div style={{marginLeft:'auto', fontSize:'10px', color:'#aaa', fontWeight:'600'}}>28 mars</div>
-          </div>
-          <div style={{fontSize:'12px', color:'#555', fontWeight:'600', lineHeight:'1.5'}}>Soirée magique ! Le tajine était incroyable, Karim est un hôte chaleureux.</div>
+        <div style={{fontSize:'13px', fontWeight:'800', color:'#222', marginBottom:'12px'}}>Mes derniers avis donnés</div>
+{notations.length === 0 && <div style={{fontSize:'12px', color:'#aaa', fontWeight:'600'}}>Tu n'as pas encore donné d'avis.</div>}
+{notations.slice(0,3).map((n) => (
+  <div key={n.id} style={{background:'#FFF8F0', borderRadius:'14px', padding:'12px', marginBottom:'10px'}}>
+    <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'6px'}}>
+      <div style={{color:'#FFD600', fontSize:'14px'}}>{'★'.repeat(n.note)}{'☆'.repeat(5-n.note)}</div>
+      <div style={{marginLeft:'auto', fontSize:'10px', color:'#aaa', fontWeight:'600'}}>{new Date(n.created_at).toLocaleDateString('fr-FR')}</div>
+    </div>
+    <div style={{fontSize:'12px', color:'#555', fontWeight:'600', lineHeight:'1.5'}}>{n.commentaire || 'Pas de commentaire'}</div>
+  </div>
+))}
         </div>
       </div>
-    </div>
+
   )
 }
 
