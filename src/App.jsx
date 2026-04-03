@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
+async function uploadPhoto(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('upload_preset', 'mange_chez_moi')
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+    { method: 'POST', body: formData },
+  )
+  const data = await res.json()
+  return data.secure_url
+}
 
 function CarteRepas({ emoji, titre, date, couleur, badge, couleurBadge }) {
   return (
@@ -409,6 +420,15 @@ function EcranCreerRepas({ setEcran }) {
   const [places, setPlaces] = useState(4)
   const [prix, setPrix] = useState(10)
   const [message, setMessage] = useState('')
+  const [photo, setPhoto] = useState(null)
+  const [photoUrl, setPhotoUrl] = useState('')
+  async function handlePhoto(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    setPhoto(URL.createObjectURL(file))
+    const url = await uploadPhoto(file)
+    setPhotoUrl(url)
+  }
 
   async function creerRepas() {
     if (!titre || !date) {
@@ -634,6 +654,37 @@ function EcranCreerRepas({ setEcran }) {
             {message}
           </div>
         )}
+        <div style={{ marginBottom: '14px' }}>
+          <div
+            style={{
+              fontSize: '12px',
+              fontWeight: '700',
+              color: '#888',
+              marginBottom: '6px',
+              textTransform: 'uppercase',
+            }}
+          >
+            Photo du plat
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePhoto}
+            style={{ width: '100%', fontSize: '12px' }}
+          />
+          {photo && (
+            <img
+              src={photo}
+              style={{
+                width: '100%',
+                borderRadius: '12px',
+                marginTop: '8px',
+                height: '150px',
+                objectFit: 'cover',
+              }}
+            />
+          )}
+        </div>
         <div
           onClick={creerRepas}
           style={{
