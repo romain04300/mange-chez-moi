@@ -86,12 +86,18 @@ function EcranAccueil({ setEcran }) {
 }
 
 function EcranChercher({ setEcran, user }) {
+  const [mesReservations, setMesReservations] = useState([])
   const [repas, setRepas] = useState([])
   const [erreur, setErreur] = useState('')
   const [message, setMessage] = useState('')
 
   useEffect(() => {
     async function chargerRepas() {
+      const { data: resData } = await supabase
+  .from('reservations')
+  .select('repas_id')
+  .eq('user_id', user.id)
+if (resData) setMesReservations(resData.map(r => r.repas_id))
       const { data, error } = await supabase.from('repas').select('*')
       if (error) { setErreur(error.message) }
       else { setRepas(data) }
@@ -131,7 +137,9 @@ async function reserver(repasId) {
               <div style={{fontSize:'11px', color:'#888', fontWeight:'600', marginBottom:'6px'}}>{r.date} · {r.prix} €/pers</div>
               <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
                 <div style={{fontSize:'10px', fontWeight:'700', padding:'3px 8px', borderRadius:'20px', background: r.couleur, color:'#D04A10'}}>{r.badge}</div>
-                <div onClick={() => reserver(r.id)} style={{background:'#FF6B35', color:'#fff', fontSize:'11px', fontWeight:'700', padding:'6px 14px', borderRadius:'20px', cursor:'pointer'}}>Réserver</div>
+                <div onClick={() => !mesReservations.includes(r.id) && reserver(r.id)} style={{background: mesReservations.includes(r.id) ? '#E0F5E8' : '#FF6B35', color: mesReservations.includes(r.id) ? '#085041' : '#fff', fontSize:'11px', fontWeight:'700', padding:'6px 14px', borderRadius:'20px', cursor: mesReservations.includes(r.id) ? 'default' : 'pointer'}}>
+  {mesReservations.includes(r.id) ? 'Réservé ✓' : 'Réserver'}
+</div>
               </div>
             </div>
           </div>
@@ -205,12 +213,20 @@ function EcranCreerRepas({ setEcran }) {
   )
 }
 
-function EcranMesRepas({ setEcran }) {
-  const repas = [
-    { emoji:'🫕', titre:'Tajine agneau pruneaux', date:'28 mars · 4 invités', note:'★★★★★', pts:'+28 pts', couleur:'#FFECD0' },
-    { emoji:'🥘', titre:'Couscous royal maison', date:'14 mars · 3 invités', note:'★★★★', pts:'+24 pts', couleur:'#E0F5E8' },
-    { emoji:'🍲', titre:'Harira & pastilla', date:'2 mars · 4 invités', note:'★★★★★', pts:'+31 pts', couleur:'#EDE0FF' },
-  ]
+function EcranMesRepas({ setEcran, user }) {
+  const [reservations, setReservations] = useState([])
+
+  useEffect(() => {
+    async function chargerReservations() {
+      const { data } = await supabase
+        .from('reservations')
+        .select('*, repas(*)')
+        .eq('user_id', user.id)
+      setReservations(data || [])
+    }
+    chargerReservations()
+  }, [])
+
   return (
     <div>
       <div style={{background:'#FF6B35', padding:'10px 16px 14px'}}>
@@ -225,16 +241,24 @@ function EcranMesRepas({ setEcran }) {
           </div>
           <span style={{fontSize:'18px', color:'rgba(255,255,255,0.7)'}}>›</span>
         </div>
-        <div style={{fontSize:'13px', fontWeight:'800', color:'#222', marginBottom:'12px'}}>Historique</div>
-        {repas.map((r) => (
-          <div key={r.titre} style={{display:'flex', alignItems:'center', gap:'10px', padding:'10px 0', borderBottom:'1px solid #FFE5D0'}}>
-            <div style={{width:'44px', height:'44px', borderRadius:'12px', background:r.couleur, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0}}>{r.emoji}</div>
+
+        <div style={{fontSize:'13px', fontWeight:'800', color:'#222', marginBottom:'12px'}}>Mes réservations ({reservations.length})</div>
+
+        {reservations.length === 0 && (
+          <div style={{textAlign:'center', padding:'30px', color:'#aaa', fontSize:'13px', fontWeight:'600'}}>
+            Tu n'as pas encore réservé de repas 🍽️
+          </div>
+        )}
+
+        {reservations.map((r) => (
+          <div key={r.id} style={{display:'flex', alignItems:'center', gap:'10px', padding:'10px 0', borderBottom:'1px solid #FFE5D0'}}>
+            <div style={{width:'44px', height:'44px', borderRadius:'12px', background: r.repas?.couleur || '#FFECD0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0}}>{r.repas?.emoji}</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:'13px', fontWeight:'800', color:'#222'}}>{r.titre}</div>
-              <div style={{fontSize:'11px', color:'#aaa', fontWeight:'600', marginTop:'2px'}}>{r.date}</div>
-              <div style={{color:'#FFD600', fontSize:'11px', marginTop:'2px'}}>{r.note}</div>
+              <div style={{fontSize:'13px', fontWeight:'800', color:'#222'}}>{r.repas?.titre}</div>
+              <div style={{fontSize:'11px', color:'#aaa', fontWeight:'600', marginTop:'2px'}}>{r.repas?.date}</div>
+              <div style={{fontSize:'10px', color:'#FF6B35', fontWeight:'700', marginTop:'2px'}}>{r.repas?.prix} €/pers</div>
             </div>
-            <div style={{background:'#EEEDFE', color:'#3C3489', fontSize:'10px', fontWeight:'700', padding:'3px 8px', borderRadius:'20px'}}>{r.pts}</div>
+            <div style={{background:'#E0F5E8', color:'#085041', fontSize:'10px', fontWeight:'700', padding:'3px 8px', borderRadius:'20px'}}>Réservé ✓</div>
           </div>
         ))}
       </div>
@@ -437,7 +461,7 @@ function App() {
     <div>
       {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} />}
       {ecran === 'chercher' && <EcranChercher setEcran={setEcran} user={user} />}
-      {ecran === 'mesrepas' && <EcranMesRepas setEcran={setEcran} />}
+      {ecran === 'mesrepas' && <EcranMesRepas setEcran={setEcran} user={user} />}
       {ecran === 'creerrepas' && <EcranCreerRepas setEcran={setEcran} />}
       {ecran === 'classement' && <EcranClassement setEcran={setEcran} />}
       {ecran === 'profil' && <EcranProfil setEcran={setEcran} setUser={setUser} user={user} />}
