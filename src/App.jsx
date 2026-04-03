@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
+
 async function uploadPhoto(file) {
   const formData = new FormData()
   formData.append('file', file)
@@ -124,7 +125,6 @@ function Nav({ ecran, setEcran }) {
 
 function EcranAccueil({ setEcran }) {
   const [repas, setRepas] = useState([])
-
   useEffect(() => {
     async function chargerRepas() {
       const { data } = await supabase
@@ -136,6 +136,7 @@ function EcranAccueil({ setEcran }) {
     }
     chargerRepas()
   }, [])
+
   return (
     <div>
       <div style={{ background: '#FF6B35', padding: '10px 16px 16px' }}>
@@ -235,30 +236,77 @@ function EcranAccueil({ setEcran }) {
           </div>
           <span style={{ fontSize: '18px', color: 'rgba(255,255,255,0.7)' }}>›</span>
         </div>
-        <div
-          style={{
-            background: '#fff',
-            borderRadius: '18px',
-            border: '1.5px solid #FFE5D0',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 12px' }}>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                background: '#FFE5D0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-              }}
-            ></div>
-            <div></div>
+        {repas.map((r) => (
+          <div
+            key={r.id}
+            style={{
+              background: '#fff',
+              borderRadius: '18px',
+              border: '1.5px solid #FFE5D0',
+              overflow: 'hidden',
+              marginBottom: '10px',
+            }}
+          >
+            {r.photo_url ? (
+              <img
+                src={r.photo_url}
+                style={{ width: '100%', height: '150px', objectFit: 'cover' }}
+              />
+            ) : (
+              <div
+                style={{
+                  height: '150px',
+                  background: r.couleur,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '64px',
+                }}
+              >
+                {r.emoji}
+              </div>
+            )}
+            <div style={{ padding: '10px 12px' }}>
+              <div style={{ fontSize: '13px', fontWeight: '800', marginBottom: '4px' }}>
+                {r.titre}
+              </div>
+              <div
+                style={{ fontSize: '11px', color: '#888', fontWeight: '600', marginBottom: '6px' }}
+              >
+                {r.date} · {r.prix} €/pers
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#D04A10',
+                    padding: '4px 8px',
+                    borderRadius: '20px',
+                    background: '#FFEDE5',
+                  }}
+                >
+                  {r.badge}
+                </div>
+                <div
+                  onClick={() => setEcran('chercher')}
+                  style={{
+                    marginLeft: 'auto',
+                    background: '#FF6B35',
+                    color: '#fff',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    padding: '5px 12px',
+                    borderRadius: '20px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Réserver
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   )
@@ -272,7 +320,10 @@ function EcranChercher({ setEcran, user }) {
 
   useEffect(() => {
     async function chargerDonnees() {
-      const { data, error } = await supabase.from('repas').select('*')
+      const { data, error } = await supabase
+        .from('repas')
+        .select('*')
+        .order('id', { ascending: false })
       if (error) {
         setErreur(error.message)
       } else {
@@ -361,18 +412,25 @@ function EcranChercher({ setEcran, user }) {
               marginBottom: '10px',
             }}
           >
-            <div
-              style={{
-                height: '72px',
-                background: r.couleur,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '40px',
-              }}
-            >
-              {r.emoji}
-            </div>
+            {r.photo_url ? (
+              <img
+                src={r.photo_url}
+                style={{ width: '100%', height: '120px', objectFit: 'cover' }}
+              />
+            ) : (
+              <div
+                style={{
+                  height: '72px',
+                  background: r.couleur,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '40px',
+                }}
+              >
+                {r.emoji}
+              </div>
+            )}
             <div style={{ padding: '10px 12px' }}>
               <div
                 style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '2px' }}
@@ -431,13 +489,12 @@ function EcranCreerRepas({ setEcran }) {
   const [message, setMessage] = useState('')
   const [photo, setPhoto] = useState(null)
   const [photoUrl, setPhotoUrl] = useState('')
+
   async function handlePhoto(e) {
     const file = e.target.files[0]
     if (!file) return
     setPhoto(URL.createObjectURL(file))
-    console.log('Cloud name:', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
     const url = await uploadPhoto(file)
-    console.log('URL:', url)
     setPhotoUrl(url)
   }
 
@@ -582,7 +639,7 @@ function EcranCreerRepas({ setEcran }) {
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '10px',
-            marginBottom: '20px',
+            marginBottom: '14px',
           }}
         >
           <div>
@@ -651,21 +708,6 @@ function EcranCreerRepas({ setEcran }) {
             />
           </div>
         </div>
-        {message && (
-          <div
-            style={{
-              background: message === 'Repas créé !' ? '#E0F5E8' : '#FFEDE5',
-              color: message === 'Repas créé !' ? '#085041' : '#D04A10',
-              fontSize: '12px',
-              fontWeight: '600',
-              padding: '10px 12px',
-              borderRadius: '10px',
-              marginBottom: '14px',
-            }}
-          >
-            {message}
-          </div>
-        )}
         <div style={{ marginBottom: '14px' }}>
           <div
             style={{
@@ -697,6 +739,21 @@ function EcranCreerRepas({ setEcran }) {
             />
           )}
         </div>
+        {message && (
+          <div
+            style={{
+              background: message === 'Repas créé !' ? '#E0F5E8' : '#FFEDE5',
+              color: message === 'Repas créé !' ? '#085041' : '#D04A10',
+              fontSize: '12px',
+              fontWeight: '600',
+              padding: '10px 12px',
+              borderRadius: '10px',
+              marginBottom: '14px',
+            }}
+          >
+            {message}
+          </div>
+        )}
         <div
           onClick={creerRepas}
           style={{
@@ -790,7 +847,19 @@ function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
                 flexShrink: 0,
               }}
             >
-              {r.repas?.emoji || '🍽️'}
+              {r.repas?.photo_url ? (
+                <img
+                  src={r.repas.photo_url}
+                  style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    objectFit: 'cover',
+                  }}
+                />
+              ) : (
+                r.repas?.emoji || '🍽️'
+              )}
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
