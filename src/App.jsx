@@ -235,80 +235,8 @@ function EcranAccueil({ setEcran }) {
                 justifyContent: 'center',
                 fontSize: '18px',
               }}
-            >
-              👩
-            </div>
-            <div>
-              <div style={{ fontSize: '13px', fontWeight: '800' }}>Sophie M.</div>
-              <div style={{ fontSize: '11px', color: '#888', fontWeight: '600' }}>
-                Marseille · ⭐ 4.9
-              </div>
-            </div>
-            <div style={{ marginLeft: 'auto', fontSize: '10px', color: '#bbb', fontWeight: '600' }}>
-              Il y a 2h
-            </div>
-          </div>
-          <div
-            style={{
-              height: '150px',
-              background: '#FFECD0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '56px',
-            }}
-          >
-            🫕
-          </div>
-          <div style={{ padding: '10px 12px' }}>
-            <div style={{ fontSize: '13px', fontWeight: '800', marginBottom: '4px' }}>
-              Soupe pho maison
-            </div>
-            <div style={{ fontSize: '11px', color: '#666', fontWeight: '600' }}>
-              Une soirée incroyable autour d'un pho préparé depuis 6h du matin !
-            </div>
-          </div>
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 12px 10px' }}
-          >
-            <div
-              style={{
-                fontSize: '11px',
-                fontWeight: '700',
-                color: '#D04A10',
-                padding: '4px 8px',
-                borderRadius: '20px',
-                background: '#FFEDE5',
-                border: '1.5px solid #FF6B35',
-              }}
-            >
-              ❤ 24
-            </div>
-            <div
-              style={{
-                fontSize: '11px',
-                fontWeight: '700',
-                color: '#888',
-                padding: '4px 8px',
-                borderRadius: '20px',
-                border: '1.5px solid #eee',
-              }}
-            >
-              💬 8
-            </div>
-            <div
-              style={{
-                marginLeft: 'auto',
-                background: '#FF6B35',
-                color: '#fff',
-                fontSize: '12px',
-                fontWeight: '800',
-                padding: '5px 12px',
-                borderRadius: '20px',
-              }}
-            >
-              8 €/pers
-            </div>
+            ></div>
+            <div></div>
           </div>
         </div>
       </div>
@@ -982,13 +910,16 @@ function EcranNotation({ setEcran, user, repasId }) {
 }
 
 function EcranClassement({ setEcran }) {
-  const joueurs = [
-    { nom: 'Sophie M.', emoji: '👩', pts: 94, rang: 1 },
-    { nom: 'Léa Martin', emoji: '👩', pts: 78, rang: 2 },
-    { nom: 'Karim B.', emoji: '👨', pts: 42, rang: 3 },
-    { nom: 'Marco R.', emoji: '🧑', pts: 38, rang: 4 },
-    { nom: 'Amina S.', emoji: '👩', pts: 29, rang: 5 },
-  ]
+  const [joueurs, setJoueurs] = useState([])
+
+  useEffect(() => {
+    async function chargerClassement() {
+      const { data } = await supabase.from('classement_view').select('*')
+      if (data) setJoueurs(data)
+    }
+    chargerClassement()
+  }, [])
+
   return (
     <div>
       <div style={{ background: '#FF6B35', padding: '10px 16px 14px' }}>
@@ -1031,62 +962,16 @@ function EcranClassement({ setEcran }) {
           <span style={{ fontSize: '13px', fontWeight: '800', color: '#fff' }}>12 jours</span>
         </div>
       </div>
-      <div
-        style={{
-          background: '#fff',
-          padding: '10px 16px',
-          borderBottom: '1.5px solid #FFE5D0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-        }}
-      >
-        <div
-          style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            background: '#FFE5D0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '14px',
-            fontWeight: '800',
-            color: '#D04A10',
-          }}
-        >
-          3
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '13px', fontWeight: '800' }}>Toi — Karim B.</div>
-          <div style={{ fontSize: '11px', color: '#888', fontWeight: '600' }}>
-            42 pts · +8 pts cette semaine
-          </div>
-        </div>
-        <div
-          style={{
-            background: '#FFF0E8',
-            color: '#D04A10',
-            fontSize: '10px',
-            fontWeight: '700',
-            padding: '3px 8px',
-            borderRadius: '20px',
-          }}
-        >
-          Top 3 !
-        </div>
-      </div>
       <div style={{ padding: '8px 16px' }}>
-        {joueurs.map((j) => (
+        {joueurs.map((j, index) => (
           <div
-            key={j.nom}
+            key={j.id}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
               padding: '9px 0',
               borderBottom: '1px solid #FFE5D0',
-              background: j.nom === 'Karim B.' ? '#FFF0E8' : 'transparent',
             }}
           >
             <div
@@ -1096,16 +981,16 @@ function EcranClassement({ setEcran }) {
                 fontSize: '13px',
                 fontWeight: '800',
                 color:
-                  j.rang === 1
+                  index === 0
                     ? '#854F0B'
-                    : j.rang === 2
+                    : index === 1
                       ? '#5F5E5A'
-                      : j.rang === 3
+                      : index === 2
                         ? '#993C1D'
                         : '#aaa',
               }}
             >
-              {j.rang === 1 ? '🥇' : j.rang === 2 ? '🥈' : j.rang === 3 ? '🥉' : j.rang}
+              {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
             </div>
             <div
               style={{
@@ -1119,12 +1004,16 @@ function EcranClassement({ setEcran }) {
                 fontSize: '16px',
               }}
             >
-              {j.emoji}
+              👤
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>{j.nom}</div>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
+                {j.prenom || 'Anonyme'}
+              </div>
             </div>
-            <div style={{ fontSize: '13px', fontWeight: '800', color: '#FF6B35' }}>{j.pts} pts</div>
+            <div style={{ fontSize: '13px', fontWeight: '800', color: '#FF6B35' }}>
+              {Math.round(j.total_pts)} pts
+            </div>
           </div>
         ))}
       </div>
