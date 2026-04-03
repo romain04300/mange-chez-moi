@@ -86,34 +86,26 @@ function EcranAccueil({ setEcran }) {
 }
 
 function EcranChercher({ setEcran, user }) {
-  const [mesReservations, setMesReservations] = useState([])
   const [repas, setRepas] = useState([])
+  const [mesReservations, setMesReservations] = useState([])
   const [erreur, setErreur] = useState('')
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    async function chargerRepas() {
-      const { data: resData } = await supabase
-  .from('reservations')
-  .select('repas_id')
-  .eq('user_id', user.id)
-if (resData) setMesReservations(resData.map(r => r.repas_id))
+    async function chargerDonnees() {
       const { data, error } = await supabase.from('repas').select('*')
       if (error) { setErreur(error.message) }
       else { setRepas(data) }
+      const { data: resData } = await supabase.from('reservations').select('repas_id').eq('user_id', user.id)
+      if (resData) setMesReservations(resData.map(r => r.repas_id))
     }
-    chargerRepas()
+    chargerDonnees()
   }, [])
 
-async function reserver(repasId) {
-    console.log('réservation pour repas:', repasId, 'user:', user.id)
-    const { error } = await supabase.from('reservations').insert({
-      repas_id: repasId,
-      user_id: user.id
-    })
-    console.log('erreur:', error)
+  async function reserver(repasId) {
+    const { error } = await supabase.from('reservations').insert({ repas_id: repasId, user_id: user.id })
     if (error) { setMessage('Erreur : ' + error.message) }
-    else { setMessage('Réservation confirmée ! 🎉') }
+    else { setMessage('Réservation confirmée ! 🎉'); setMesReservations([...mesReservations, repasId]) }
   }
 
   return (
@@ -138,8 +130,8 @@ async function reserver(repasId) {
               <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
                 <div style={{fontSize:'10px', fontWeight:'700', padding:'3px 8px', borderRadius:'20px', background: r.couleur, color:'#D04A10'}}>{r.badge}</div>
                 <div onClick={() => !mesReservations.includes(r.id) && reserver(r.id)} style={{background: mesReservations.includes(r.id) ? '#E0F5E8' : '#FF6B35', color: mesReservations.includes(r.id) ? '#085041' : '#fff', fontSize:'11px', fontWeight:'700', padding:'6px 14px', borderRadius:'20px', cursor: mesReservations.includes(r.id) ? 'default' : 'pointer'}}>
-  {mesReservations.includes(r.id) ? 'Réservé ✓' : 'Réserver'}
-</div>
+                  {mesReservations.includes(r.id) ? 'Réservé ✓' : 'Réserver'}
+                </div>
               </div>
             </div>
           </div>
@@ -158,15 +150,8 @@ function EcranCreerRepas({ setEcran }) {
   const [message, setMessage] = useState('')
 
   async function creerRepas() {
-    if (!titre || !date) {
-      setMessage('Remplis le titre et la date !')
-      return
-    }
-    const { error } = await supabase.from('repas').insert({
-      titre, emoji, date, places, prix,
-      couleur: '#FFECD0',
-      badge: places + ' places dispo'
-    })
+    if (!titre || !date) { setMessage('Remplis le titre et la date !'); return }
+    const { error } = await supabase.from('repas').insert({ titre, emoji, date, places, prix, couleur: '#FFECD0', badge: places + ' places dispo' })
     if (error) { setMessage('Erreur : ' + error.message) }
     else { setMessage('Repas créé !'); setEcran('chercher') }
   }
@@ -213,16 +198,13 @@ function EcranCreerRepas({ setEcran }) {
   )
 }
 
-function EcranMesRepas({ setEcran, user }) {
+function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
   const [reservations, setReservations] = useState([])
 
   useEffect(() => {
     async function chargerReservations() {
-      const { data } = await supabase
-        .from('reservations')
-        .select('*, repas(*)')
-        .eq('user_id', user.id)
-      setReservations(data || [])
+      const { data } = await supabase.from('reservations').select('*, repas(*)').eq('user_id', user.id)
+      if (data) setReservations(data)
     }
     chargerReservations()
   }, [])
@@ -241,26 +223,60 @@ function EcranMesRepas({ setEcran, user }) {
           </div>
           <span style={{fontSize:'18px', color:'rgba(255,255,255,0.7)'}}>›</span>
         </div>
-
         <div style={{fontSize:'13px', fontWeight:'800', color:'#222', marginBottom:'12px'}}>Mes réservations ({reservations.length})</div>
-
-        {reservations.length === 0 && (
-          <div style={{textAlign:'center', padding:'30px', color:'#aaa', fontSize:'13px', fontWeight:'600'}}>
-            Tu n'as pas encore réservé de repas 🍽️
-          </div>
-        )}
-
         {reservations.map((r) => (
           <div key={r.id} style={{display:'flex', alignItems:'center', gap:'10px', padding:'10px 0', borderBottom:'1px solid #FFE5D0'}}>
-            <div style={{width:'44px', height:'44px', borderRadius:'12px', background: r.repas?.couleur || '#FFECD0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0}}>{r.repas?.emoji}</div>
+            <div style={{width:'44px', height:'44px', borderRadius:'12px', background: r.repas?.couleur || '#FFE5D0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', flexShrink:0}}>{r.repas?.emoji || '🍽️'}</div>
             <div style={{flex:1}}>
               <div style={{fontSize:'13px', fontWeight:'800', color:'#222'}}>{r.repas?.titre}</div>
-              <div style={{fontSize:'11px', color:'#aaa', fontWeight:'600', marginTop:'2px'}}>{r.repas?.date}</div>
-              <div style={{fontSize:'10px', color:'#FF6B35', fontWeight:'700', marginTop:'2px'}}>{r.repas?.prix} €/pers</div>
+              <div style={{fontSize:'11px', color:'#aaa', fontWeight:'600', marginTop:'2px'}}>{r.repas?.date} · {r.repas?.prix} €/pers</div>
             </div>
-            <div style={{background:'#E0F5E8', color:'#085041', fontSize:'10px', fontWeight:'700', padding:'3px 8px', borderRadius:'20px'}}>Réservé ✓</div>
+            <div onClick={() => { setRepasSelectionne(r.repas_id); setEcran('notation') }} style={{background:'#EEEDFE', color:'#3C3489', fontSize:'10px', fontWeight:'700', padding:'5px 10px', borderRadius:'20px', cursor:'pointer'}}>Noter ⭐</div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function EcranNotation({ setEcran, user, repasId }) {
+  const [note, setNote] = useState(0)
+  const [commentaire, setCommentaire] = useState('')
+  const [message, setMessage] = useState('')
+
+  async function noter() {
+    if (note === 0) { setMessage('Choisis une note !'); return }
+    const { error } = await supabase.from('notations').insert({ repas_id: repasId, noteur_id: user.id, note, commentaire })
+    if (error) { setMessage('Erreur : ' + error.message) }
+    else { setMessage('Merci pour ta note ! 🎉'); setTimeout(() => setEcran('mesrepas'), 2000) }
+  }
+
+  return (
+    <div>
+      <div style={{background:'#FF6B35', padding:'10px 16px 14px', display:'flex', alignItems:'center', gap:'10px'}}>
+        <div onClick={() => setEcran('mesrepas')} style={{color:'#fff', fontSize:'18px', cursor:'pointer'}}>←</div>
+        <span style={{fontFamily:'Pacifico, cursive', fontSize:'18px', color:'#fff'}}>Noter ce repas</span>
+      </div>
+      <div style={{padding:'20px 16px'}}>
+        <div style={{textAlign:'center', marginBottom:'24px'}}>
+          <div style={{fontSize:'14px', fontWeight:'800', color:'#222', marginBottom:'16px'}}>Quelle note donnes-tu à ce repas ?</div>
+          <div style={{display:'flex', justifyContent:'center', gap:'12px'}}>
+            {[1,2,3,4,5].map(n => (
+              <div key={n} onClick={() => setNote(n)} style={{width:'44px', height:'44px', borderRadius:'50%', background: note >= n ? '#FFD600' : '#f5f5f5', border: note >= n ? '2px solid #EF9F27' : '1.5px solid #eee', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', cursor:'pointer'}}>★</div>
+            ))}
+          </div>
+          <div style={{fontSize:'13px', fontWeight:'700', color:'#FF6B35', marginTop:'10px'}}>
+            {note === 0 ? 'Clique sur une étoile' : note === 1 ? 'Décevant 😕' : note === 2 ? 'Peut mieux faire 😐' : note === 3 ? 'Correct 🙂' : note === 4 ? 'Très bien 😊' : 'Excellent ! 🤩'}
+          </div>
+        </div>
+        <div style={{marginBottom:'20px'}}>
+          <div style={{fontSize:'12px', fontWeight:'700', color:'#888', marginBottom:'6px', textTransform:'uppercase'}}>Ton commentaire</div>
+          <textarea value={commentaire} onChange={e => setCommentaire(e.target.value)} placeholder="Décris ton expérience..." style={{width:'100%', background:'#FFF8F0', border:'1.5px solid #FFE5D0', borderRadius:'12px', padding:'11px 13px', fontFamily:'Nunito, sans-serif', fontSize:'13px', outline:'none', resize:'none', minHeight:'100px'}}/>
+        </div>
+        {message && <div style={{background: message.includes('Merci') ? '#E0F5E8' : '#FFEDE5', color: message.includes('Merci') ? '#085041' : '#D04A10', fontSize:'12px', fontWeight:'600', padding:'10px 12px', borderRadius:'10px', marginBottom:'14px'}}>{message}</div>}
+        <div onClick={noter} style={{background:'#FF6B35', borderRadius:'14px', padding:'14px', textAlign:'center', fontSize:'14px', fontWeight:'800', color:'#fff', cursor:'pointer'}}>
+          Envoyer ma note ⭐
+        </div>
       </div>
     </div>
   )
@@ -330,6 +346,7 @@ function EcranProfil({ setEcran, setUser, user }) {
     }
     chargerProfil()
   }, [])
+
   return (
     <div>
       <div style={{background:'#FF6B35', padding:'10px 16px 24px'}}>
@@ -339,8 +356,8 @@ function EcranProfil({ setEcran, setUser, user }) {
         </div>
         <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:'8px'}}>
           <div style={{width:'72px', height:'72px', borderRadius:'50%', background:'#FFE5D0', border:'3px solid #fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'32px'}}>👨</div>
-      <div style={{fontSize:'17px', fontWeight:'800', color:'#fff'}}>{profil?.prenom || user?.email}</div>
-          <div style={{fontSize:'12px', color:'rgba(255,255,255,0.8)', fontWeight:'600'}}>📍 Marseille 13001</div>
+          <div style={{fontSize:'17px', fontWeight:'800', color:'#fff'}}>{profil?.prenom || user?.email}</div>
+          <div style={{fontSize:'12px', color:'rgba(255,255,255,0.8)', fontWeight:'600'}}>📍 {profil?.ville || 'Marseille'}</div>
           <div style={{display:'flex', gap:'6px'}}>
             <div style={{background:'#FFD600', color:'#412402', fontSize:'10px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px'}}>Super hôte</div>
             <div style={{background:'rgba(255,255,255,0.25)', color:'#fff', fontSize:'10px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px'}}>Finaliste S1</div>
@@ -367,17 +384,6 @@ function EcranProfil({ setEcran, setUser, user }) {
             <div style={{marginLeft:'auto', fontSize:'10px', color:'#aaa', fontWeight:'600'}}>28 mars</div>
           </div>
           <div style={{fontSize:'12px', color:'#555', fontWeight:'600', lineHeight:'1.5'}}>Soirée magique ! Le tajine était incroyable, Karim est un hôte chaleureux.</div>
-        </div>
-        <div style={{background:'#FFF8F0', borderRadius:'14px', padding:'12px'}}>
-          <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'6px'}}>
-            <div style={{width:'30px', height:'30px', borderRadius:'50%', background:'#E0F5E8', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px'}}>🧑</div>
-            <div>
-              <div style={{fontSize:'12px', fontWeight:'800', color:'#222'}}>Marco R.</div>
-              <div style={{color:'#FFD600', fontSize:'11px'}}>★★★★★</div>
-            </div>
-            <div style={{marginLeft:'auto', fontSize:'10px', color:'#aaa', fontWeight:'600'}}>15 mars</div>
-          </div>
-          <div style={{fontSize:'12px', color:'#555', fontWeight:'600', lineHeight:'1.5'}}>Une table pleine de convivialité, des plats faits avec amour !</div>
         </div>
       </div>
     </div>
@@ -411,21 +417,19 @@ function EcranConnexion({ setEcran, setUser }) {
     <div style={{minHeight:'100vh', background:'#FFF8F0', display:'flex', flexDirection:'column'}}>
       <div style={{background:'#FF6B35', padding:'40px 24px 30px', textAlign:'center'}}>
         <div style={{fontFamily:'Pacifico, cursive', fontSize:'28px', color:'#fff', marginBottom:'8px'}}>Mange Chez Moi</div>
-        <div style={{fontSize:'13px', color:'rgba(255,255,255,0.8)', fontWeight:'600'}}>Repas chez l'habitant </div>
+        <div style={{fontSize:'13px', color:'rgba(255,255,255,0.8)', fontWeight:'600'}}>Repas chez l'habitant à Marseille</div>
       </div>
       <div style={{padding:'24px 20px', flex:1}}>
         <div style={{display:'flex', background:'#FFE5D0', borderRadius:'12px', padding:'3px', marginBottom:'20px'}}>
           <div onClick={() => setMode('connexion')} style={{flex:1, padding:'8px', textAlign:'center', borderRadius:'10px', background: mode === 'connexion' ? '#FF6B35' : 'transparent', color: mode === 'connexion' ? '#fff' : '#888', fontSize:'13px', fontWeight:'700', cursor:'pointer'}}>Connexion</div>
           <div onClick={() => setMode('inscription')} style={{flex:1, padding:'8px', textAlign:'center', borderRadius:'10px', background: mode === 'inscription' ? '#FF6B35' : 'transparent', color: mode === 'inscription' ? '#fff' : '#888', fontSize:'13px', fontWeight:'700', cursor:'pointer'}}>Inscription</div>
         </div>
-
         {mode === 'inscription' && (
           <div style={{marginBottom:'14px'}}>
             <div style={{fontSize:'12px', fontWeight:'700', color:'#888', marginBottom:'6px', textTransform:'uppercase', letterSpacing:'0.4px'}}>Prénom</div>
             <input value={prenom} onChange={(e) => setPrenom(e.target.value)} placeholder="Ton prénom" style={{width:'100%', background:'#FFF8F0', border:'1.5px solid #FFE5D0', borderRadius:'12px', padding:'11px 13px', fontFamily:'Nunito, sans-serif', fontSize:'13px', outline:'none'}}/>
           </div>
         )}
-
         <div style={{marginBottom:'14px'}}>
           <div style={{fontSize:'12px', fontWeight:'700', color:'#888', marginBottom:'6px', textTransform:'uppercase', letterSpacing:'0.4px'}}>Email</div>
           <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ton@email.com" style={{width:'100%', background:'#FFF8F0', border:'1.5px solid #FFE5D0', borderRadius:'12px', padding:'11px 13px', fontFamily:'Nunito, sans-serif', fontSize:'13px', outline:'none'}}/>
@@ -446,6 +450,7 @@ function EcranConnexion({ setEcran, setUser }) {
 function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
+  const [repasSelectionne, setRepasSelectionne] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -461,8 +466,9 @@ function App() {
     <div>
       {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} />}
       {ecran === 'chercher' && <EcranChercher setEcran={setEcran} user={user} />}
-      {ecran === 'mesrepas' && <EcranMesRepas setEcran={setEcran} user={user} />}
+      {ecran === 'mesrepas' && <EcranMesRepas setEcran={setEcran} user={user} setRepasSelectionne={setRepasSelectionne} />}
       {ecran === 'creerrepas' && <EcranCreerRepas setEcran={setEcran} />}
+      {ecran === 'notation' && <EcranNotation setEcran={setEcran} user={user} repasId={repasSelectionne} />}
       {ecran === 'classement' && <EcranClassement setEcran={setEcran} />}
       {ecran === 'profil' && <EcranProfil setEcran={setEcran} setUser={setUser} user={user} />}
       <Nav ecran={ecran} setEcran={setEcran} />
