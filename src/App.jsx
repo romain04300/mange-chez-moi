@@ -1234,20 +1234,65 @@ function EcranProfil({ setEcran, setUser, user }) {
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              width: '72px',
-              height: '72px',
-              borderRadius: '50%',
-              background: '#FFE5D0',
-              border: '3px solid #fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '32px',
-            }}
-          >
-            👨
+          <div style={{ position: 'relative' }}>
+            {profil?.photo_url ? (
+              <img
+                src={profil.photo_url}
+                style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '50%',
+                  border: '3px solid #fff',
+                  objectFit: 'cover',
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '50%',
+                  background: '#FFE5D0',
+                  border: '3px solid #fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '32px',
+                }}
+              >
+                👨
+              </div>
+            )}
+            <label
+              style={{
+                position: 'absolute',
+                bottom: '0',
+                right: '0',
+                background: '#FF6B35',
+                borderRadius: '50%',
+                width: '22px',
+                height: '22px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
+              📷
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  const file = e.target.files[0]
+                  if (!file) return
+                  const url = await uploadPhoto(file)
+                  await supabase.from('profils').update({ photo_url: url }).eq('id', user.id)
+                  setProfil({ ...profil, photo_url: url })
+                }}
+              />
+            </label>
           </div>
           <div style={{ fontSize: '17px', fontWeight: '800', color: '#fff' }}>
             {profil?.prenom || user?.email}
