@@ -12,7 +12,7 @@ async function uploadPhoto(file) {
   return data.secure_url
 }
 
-function CarteRepas({ emoji, titre, date, couleur, badge, couleurBadge }) {
+function CarteRepas({ emoji, titre, date, couleur, badge, couleurBadge, photoUrl }) {
   return (
     <div
       style={{
@@ -24,18 +24,22 @@ function CarteRepas({ emoji, titre, date, couleur, badge, couleurBadge }) {
         marginBottom: '10px',
       }}
     >
-      <div
-        style={{
-          height: '72px',
-          background: couleur,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '30px',
-        }}
-      >
-        {emoji}
-      </div>
+      {photoUrl ? (
+        <img src={photoUrl} style={{ width: '100%', height: '72px', objectFit: 'cover' }} />
+      ) : (
+        <div
+          style={{
+            height: '72px',
+            background: couleur,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '30px',
+          }}
+        >
+          {emoji}
+        </div>
+      )}
       <div style={{ padding: '8px' }}>
         <div style={{ fontSize: '11px', fontWeight: '800', color: '#222' }}>{titre}</div>
         <div style={{ fontSize: '10px', color: '#888', fontWeight: '600' }}>{date}</div>
@@ -123,7 +127,11 @@ function EcranAccueil({ setEcran }) {
 
   useEffect(() => {
     async function chargerRepas() {
-      const { data } = await supabase.from('repas').select('*').limit(5)
+      const { data } = await supabase
+        .from('repas')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(5)
       if (data) setRepas(data)
     }
     chargerRepas()
@@ -194,6 +202,7 @@ function EcranAccueil({ setEcran }) {
               couleur={r.couleur}
               badge={r.badge}
               couleurBadge={r.couleur}
+              photoUrl={r.photo_url}
             />
           ))}
         </div>
@@ -426,7 +435,9 @@ function EcranCreerRepas({ setEcran }) {
     const file = e.target.files[0]
     if (!file) return
     setPhoto(URL.createObjectURL(file))
+    console.log('Cloud name:', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
     const url = await uploadPhoto(file)
+    console.log('URL:', url)
     setPhotoUrl(url)
   }
 
@@ -443,6 +454,7 @@ function EcranCreerRepas({ setEcran }) {
       prix,
       couleur: '#FFECD0',
       badge: places + ' places dispo',
+      photo_url: photoUrl,
     })
     if (error) {
       setMessage('Erreur : ' + error.message)
