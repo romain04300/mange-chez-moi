@@ -337,15 +337,23 @@ function EcranClassement({ setEcran }) {
 }
 
 function EcranProfil({ setEcran, setUser, user }) {
-  const [profil, setProfil] = useState(null)
+const [profil, setProfil] = useState(null)
+const [notations, setNotations] = useState([])
+const [moyenne, setMoyenne] = useState(0)
 
-  useEffect(() => {
-    async function chargerProfil() {
-      const { data } = await supabase.from('profils').select('*').eq('id', user.id).single()
-      setProfil(data)
+useEffect(() => {
+  async function chargerProfil() {
+    const { data } = await supabase.from('profils').select('*').eq('id', user.id).single()
+    setProfil(data)
+    const { data: notes } = await supabase.from('notations').select('*').eq('noteur_id', user.id)
+    if (notes && notes.length > 0) {
+      setNotations(notes)
+      const moy = notes.reduce((acc, n) => acc + n.note, 0) / notes.length
+      setMoyenne(moy.toFixed(1))
     }
-    chargerProfil()
-  }, [])
+  }
+  chargerProfil()
+}, [])
 
   return (
     <div>
@@ -365,7 +373,7 @@ function EcranProfil({ setEcran, setUser, user }) {
         </div>
       </div>
       <div style={{display:'flex', background:'#fff', borderBottom:'1.5px solid #FFE5D0'}}>
-        {[['23','Repas'],['4.7','Note'],['87','Invités'],['340','Points']].map(([val, label]) => (
+        {[['?','Repas'],[moyenne || '?','Note'],[notations.length,'Avis'],['0','Points']].map(([val, label]) => (
           <div key={label} style={{flex:1, padding:'12px 8px', textAlign:'center', borderRight:'1px solid #FFE5D0'}}>
             <div style={{fontSize:'18px', fontWeight:'800', color:'#FF6B35'}}>{val}</div>
             <div style={{fontSize:'10px', fontWeight:'700', color:'#aaa', marginTop:'2px'}}>{label}</div>
