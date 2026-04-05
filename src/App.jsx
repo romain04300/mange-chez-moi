@@ -489,6 +489,7 @@ function EcranCreerRepas({ setEcran }) {
   const [message, setMessage] = useState('')
   const [photo, setPhoto] = useState(null)
   const [photoUrl, setPhotoUrl] = useState('')
+  const [ville, setVille] = useState('')
 
   async function handlePhoto(e) {
     const file = e.target.files[0]
@@ -512,6 +513,7 @@ function EcranCreerRepas({ setEcran }) {
       couleur: '#FFECD0',
       badge: places + ' places dispo',
       photo_url: photoUrl,
+      ville,
     })
     if (error) {
       setMessage('Erreur : ' + error.message)
@@ -718,6 +720,34 @@ function EcranCreerRepas({ setEcran }) {
               textTransform: 'uppercase',
             }}
           >
+            <div style={{ marginBottom: '14px' }}>
+              <div
+                style={{
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#888',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Ville
+              </div>
+              <input
+                value={ville}
+                onChange={(e) => setVille(e.target.value)}
+                placeholder="Ex: Paris, Lyon, Bordeaux..."
+                style={{
+                  width: '100%',
+                  background: '#FFF8F0',
+                  border: '1.5px solid #FFE5D0',
+                  borderRadius: '12px',
+                  padding: '11px 13px',
+                  fontFamily: 'Nunito, sans-serif',
+                  fontSize: '13px',
+                  outline: 'none',
+                }}
+              />
+            </div>
             Photo du plat
           </div>
           <input
