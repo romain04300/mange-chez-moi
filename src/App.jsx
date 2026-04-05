@@ -317,6 +317,7 @@ function EcranChercher({ setEcran, user }) {
   const [mesReservations, setMesReservations] = useState([])
   const [erreur, setErreur] = useState('')
   const [message, setMessage] = useState('')
+  const [filtreVille, setFiltreVille] = useState('')
 
   useEffect(() => {
     async function chargerDonnees() {
@@ -374,9 +375,20 @@ function EcranChercher({ setEcran, user }) {
           }}
         >
           <span style={{ fontSize: '15px' }}>🔍</span>
-          <span style={{ fontSize: '13px', fontWeight: '600', color: '#999' }}>
-            Cuisine, quartier, hôte...
-          </span>
+          <input
+            value={filtreVille}
+            onChange={(e) => setFiltreVille(e.target.value)}
+            placeholder="Rechercher une ville..."
+            style={{
+              flex: 1,
+              border: 'none',
+              outline: 'none',
+              fontSize: '13px',
+              fontWeight: '600',
+              color: '#333',
+              background: 'transparent',
+            }}
+          />
         </div>
       </div>
       <div style={{ padding: '14px 16px' }}>
@@ -401,80 +413,96 @@ function EcranChercher({ setEcran, user }) {
         <div style={{ fontSize: '14px', fontWeight: '800', marginBottom: '12px' }}>
           {repas.length} repas disponibles
         </div>
-        {repas.map((r) => (
-          <div
-            key={r.id}
-            style={{
-              background: '#fff',
-              borderRadius: '16px',
-              border: '1.5px solid #FFE5D0',
-              overflow: 'hidden',
-              marginBottom: '10px',
-            }}
-          >
-            {r.photo_url ? (
-              <img
-                src={r.photo_url}
-                style={{ width: '100%', height: '120px', objectFit: 'cover' }}
-              />
-            ) : (
-              <div
-                style={{
-                  height: '72px',
-                  background: r.couleur,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '40px',
-                }}
-              >
-                {r.emoji}
-              </div>
-            )}
-            <div style={{ padding: '10px 12px' }}>
-              <div
-                style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '2px' }}
-              >
-                {r.titre}
-              </div>
-              <div
-                style={{ fontSize: '11px', color: '#888', fontWeight: '600', marginBottom: '6px' }}
-              >
-                {r.date} · {r.prix} €/pers
-              </div>
-              <div
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-              >
+        {repas
+          .filter(
+            (r) =>
+              !filtreVille ||
+              (r.ville && r.ville.toLowerCase().includes(filtreVille.toLowerCase())),
+          )
+          .map((r) => (
+            <div
+              key={r.id}
+              style={{
+                background: '#fff',
+                borderRadius: '16px',
+                border: '1.5px solid #FFE5D0',
+                overflow: 'hidden',
+                marginBottom: '10px',
+              }}
+            >
+              {r.photo_url ? (
+                <img
+                  src={r.photo_url}
+                  style={{ width: '100%', height: '120px', objectFit: 'cover' }}
+                />
+              ) : (
                 <div
                   style={{
-                    fontSize: '10px',
-                    fontWeight: '700',
-                    padding: '3px 8px',
-                    borderRadius: '20px',
+                    height: '72px',
                     background: r.couleur,
-                    color: '#D04A10',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '40px',
                   }}
                 >
-                  {r.badge}
+                  {r.emoji}
+                </div>
+              )}
+              <div style={{ padding: '10px 12px' }}>
+                <div
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: '800',
+                    color: '#222',
+                    marginBottom: '2px',
+                  }}
+                >
+                  {r.titre}
                 </div>
                 <div
-                  onClick={() => !mesReservations.includes(r.id) && reserver(r.id)}
                   style={{
-                    background: mesReservations.includes(r.id) ? '#E0F5E8' : '#FF6B35',
-                    color: mesReservations.includes(r.id) ? '#085041' : '#fff',
                     fontSize: '11px',
-                    fontWeight: '700',
-                    padding: '6px 14px',
-                    borderRadius: '20px',
-                    cursor: mesReservations.includes(r.id) ? 'default' : 'pointer',
+                    color: '#888',
+                    fontWeight: '600',
+                    marginBottom: '6px',
                   }}
                 >
-                  {mesReservations.includes(r.id) ? 'Réservé ✓' : 'Réserver'}
+                  {r.date} · {r.prix} €/pers
+                </div>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: '700',
+                      padding: '3px 8px',
+                      borderRadius: '20px',
+                      background: r.couleur,
+                      color: '#D04A10',
+                    }}
+                  >
+                    {r.badge}
+                  </div>
+                  <div
+                    onClick={() => !mesReservations.includes(r.id) && reserver(r.id)}
+                    style={{
+                      background: mesReservations.includes(r.id) ? '#E0F5E8' : '#FF6B35',
+                      color: mesReservations.includes(r.id) ? '#085041' : '#fff',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      padding: '6px 14px',
+                      borderRadius: '20px',
+                      cursor: mesReservations.includes(r.id) ? 'default' : 'pointer',
+                    }}
+                  >
+                    {mesReservations.includes(r.id) ? 'Réservé ✓' : 'Réserver'}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   )
