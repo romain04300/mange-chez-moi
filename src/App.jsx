@@ -1834,11 +1834,26 @@ function EcranChat({ setEcran, user }) {
       setProfil(p)
       const { data: m } = await supabase
         .from('messages')
-        .select('*, profils(prenom)')
+        .select('*')
         .order('created_at', { ascending: true })
       if (m) setMessages(m)
     }
     charger()
+
+    const canal = supabase
+      .channel('messages')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new])
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(canal)
+    }
   }, [])
 
   async function envoyer() {
@@ -1847,9 +1862,8 @@ function EcranChat({ setEcran, user }) {
     setTexte('')
     const { data: m } = await supabase
       .from('messages')
-      .select('*, profils(prenom)')
+      .select('*')
       .order('created_at', { ascending: true })
-    if (m) setMessages(m)
   }
 
   return (
@@ -1910,7 +1924,7 @@ function EcranChat({ setEcran, user }) {
                   textAlign: m.user_id === user.id ? 'right' : 'left',
                 }}
               >
-                {m.profils?.prenom || 'Anonyme'}
+                {m.user_id === user.id ? profil?.prenom || 'Moi' : 'Membre'}
               </div>
               <div
                 style={{
@@ -1980,9 +1994,6 @@ function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
   const [repasSelectionne, setRepasSelectionne] = useState(null)
-  {
-    ecran === 'chat' && <EcranChat setEcran={setEcran} user={user} />
-  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -2007,6 +2018,7 @@ function App() {
       )}
       {ecran === 'classement' && <EcranClassement setEcran={setEcran} />}
       {ecran === 'profil' && <EcranProfil setEcran={setEcran} setUser={setUser} user={user} />}
+      {ecran === 'chat' && <EcranChat setEcran={setEcran} user={user} />}
       <Nav ecran={ecran} setEcran={setEcran} />
     </div>
   )
