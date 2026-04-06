@@ -158,7 +158,7 @@ function EcranAccueil({ setEcran, user }) {
 
   return (
     <div>
-      <div style={{ background: '#FF6B35', padding: '10px 16px 16px' }}>
+      <div style={{ background: '#FF6B35', padding: '10px 16px 16px', overflow: 'visible' }}>
         <div
           style={{
             display: 'flex',
@@ -170,7 +170,7 @@ function EcranAccueil({ setEcran, user }) {
           <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '22px', color: '#fff' }}>
             Mange Chez Moi
           </span>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', overflow: 'visible' }}>
             <div
               onClick={() => setEcran('notifications')}
               style={{
