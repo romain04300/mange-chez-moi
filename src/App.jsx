@@ -169,6 +169,7 @@ function EcranAccueil({ setEcran, user }) {
           </span>
           <div style={{ display: 'flex', gap: '10px' }}>
             <div
+              onClick={() => setEcran('notifications')}
               style={{
                 width: '34px',
                 height: '34px',
@@ -178,11 +179,13 @@ function EcranAccueil({ setEcran, user }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '16px',
+                cursor: 'pointer',
               }}
             >
               🔔
             </div>
             <div
+              onClick={() => setEcran('chat')}
               style={{
                 width: '34px',
                 height: '34px',
@@ -192,6 +195,7 @@ function EcranAccueil({ setEcran, user }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '16px',
+                cursor: 'pointer',
               }}
             >
               💬
@@ -1181,6 +1185,7 @@ function EcranNotation({ setEcran, user, repasId }) {
 
 function EcranClassement({ setEcran }) {
   const [joueurs, setJoueurs] = useState([])
+  const [membreSelectionne, setMembreSelectionne] = useState(null)
 
   useEffect(() => {
     async function chargerClassement() {
@@ -1189,7 +1194,54 @@ function EcranClassement({ setEcran }) {
     }
     chargerClassement()
   }, [])
-
+  if (membreSelectionne)
+    return (
+      <div>
+        <div style={{ background: '#FF6B35', padding: '10px 16px 24px' }}>
+          <div
+            onClick={() => setMembreSelectionne(null)}
+            style={{ color: '#fff', fontSize: '18px', cursor: 'pointer', marginBottom: '10px' }}
+          >
+            ←
+          </div>
+          <div
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
+          >
+            <div
+              style={{
+                width: '72px',
+                height: '72px',
+                borderRadius: '50%',
+                background: '#FFE5D0',
+                border: '3px solid #fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '32px',
+              }}
+            >
+              👤
+            </div>
+            <div style={{ fontSize: '17px', fontWeight: '800', color: '#fff' }}>
+              {membreSelectionne.prenom || 'Anonyme'}
+            </div>
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+              📍 {membreSelectionne.ville || 'France'}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #FFE5D0' }}>
+          <div style={{ flex: 1, padding: '12px 8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '18px', fontWeight: '800', color: '#FF6B35' }}>
+              {Math.round(membreSelectionne.total_pts)}
+            </div>
+            <div style={{ fontSize: '10px', fontWeight: '700', color: '#aaa', marginTop: '2px' }}>
+              Points
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   return (
     <div>
       <div style={{ background: '#FF6B35', padding: '10px 16px 14px' }}>
@@ -1276,8 +1328,8 @@ function EcranClassement({ setEcran }) {
             >
               👤
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
+            <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => setMembreSelectionne(j)}>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: '#FF6B35' }}>
                 {j.prenom || 'Anonyme'}
               </div>
               <div style={{ fontSize: '10px', color: '#888', fontWeight: '600' }}>
@@ -1771,11 +1823,166 @@ function EcranConnexion({ setEcran, setUser }) {
     </div>
   )
 }
+function EcranChat({ setEcran, user }) {
+  const [messages, setMessages] = useState([])
+  const [texte, setTexte] = useState('')
+  const [profil, setProfil] = useState(null)
 
+  useEffect(() => {
+    async function charger() {
+      const { data: p } = await supabase.from('profils').select('*').eq('id', user.id).single()
+      setProfil(p)
+      const { data: m } = await supabase
+        .from('messages')
+        .select('*, profils(prenom)')
+        .order('created_at', { ascending: true })
+      if (m) setMessages(m)
+    }
+    charger()
+  }, [])
+
+  async function envoyer() {
+    if (!texte.trim()) return
+    await supabase.from('messages').insert({ user_id: user.id, contenu: texte })
+    setTexte('')
+    const { data: m } = await supabase
+      .from('messages')
+      .select('*, profils(prenom)')
+      .order('created_at', { ascending: true })
+    if (m) setMessages(m)
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+          Chat communauté 💬
+        </span>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+        {messages.map((m) => (
+          <div
+            key={m.id}
+            style={{
+              marginBottom: '12px',
+              display: 'flex',
+              flexDirection: m.user_id === user.id ? 'row-reverse' : 'row',
+              gap: '8px',
+              alignItems: 'flex-end',
+            }}
+          >
+            <div
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: '#FFE5D0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                flexShrink: 0,
+              }}
+            >
+              👤
+            </div>
+            <div>
+              <div
+                style={{
+                  fontSize: '10px',
+                  color: '#aaa',
+                  fontWeight: '600',
+                  marginBottom: '2px',
+                  textAlign: m.user_id === user.id ? 'right' : 'left',
+                }}
+              >
+                {m.profils?.prenom || 'Anonyme'}
+              </div>
+              <div
+                style={{
+                  background: m.user_id === user.id ? '#FF6B35' : '#fff',
+                  color: m.user_id === user.id ? '#fff' : '#222',
+                  borderRadius: '14px',
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  border: '1.5px solid #FFE5D0',
+                  maxWidth: '220px',
+                }}
+              >
+                {m.contenu}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div
+        style={{
+          padding: '10px 16px',
+          background: '#fff',
+          borderTop: '1.5px solid #FFE5D0',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center',
+        }}
+      >
+        <input
+          value={texte}
+          onChange={(e) => setTexte(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && envoyer()}
+          placeholder="Ton message..."
+          style={{
+            flex: 1,
+            background: '#FFF8F0',
+            border: '1.5px solid #FFE5D0',
+            borderRadius: '20px',
+            padding: '10px 14px',
+            fontFamily: 'Nunito, sans-serif',
+            fontSize: '13px',
+            outline: 'none',
+          }}
+        />
+        <div
+          onClick={envoyer}
+          style={{
+            background: '#FF6B35',
+            borderRadius: '50%',
+            width: '38px',
+            height: '38px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '18px',
+          }}
+        >
+          ➤
+        </div>
+      </div>
+    </div>
+  )
+}
 function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
   const [repasSelectionne, setRepasSelectionne] = useState(null)
+  {
+    ecran === 'chat' && <EcranChat setEcran={setEcran} user={user} />
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
