@@ -170,81 +170,43 @@ function EcranAccueil({ setEcran, user }) {
           <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '22px', color: '#fff' }}>
             Mange Chez Moi
           </span>
-          <div style={{ display: 'flex', gap: '10px', overflow: 'visible' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
             <div
               onClick={() => setEcran('notifications')}
               style={{
-                position: 'relative',
-                width: '34px',
-                height: '34px',
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.25)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '16px',
+                gap: '4px',
+                background: 'rgba(255,255,255,0.25)',
+                borderRadius: '20px',
+                padding: '6px 10px',
                 cursor: 'pointer',
               }}
             >
-              🔔
+              <span style={{ fontSize: '16px' }}>🔔</span>
               {stats.repas > 0 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '-4px',
-                    right: '-4px',
-                    background: '#FFD600',
-                    borderRadius: '50%',
-                    width: '16px',
-                    height: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '9px',
-                    fontWeight: '800',
-                    color: '#333',
-                  }}
-                >
+                <span style={{ fontSize: '11px', fontWeight: '800', color: '#fff' }}>
                   {stats.repas > 9 ? '9+' : stats.repas}
-                </div>
+                </span>
               )}
             </div>
             <div
               onClick={() => setEcran('chat')}
               style={{
-                position: 'relative',
-                width: '34px',
-                height: '34px',
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.25)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '16px',
+                gap: '4px',
+                background: 'rgba(255,255,255,0.25)',
+                borderRadius: '20px',
+                padding: '6px 10px',
                 cursor: 'pointer',
               }}
             >
-              💬
+              <span style={{ fontSize: '16px' }}>💬</span>
               {stats.messages > 0 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '-4px',
-                    right: '-4px',
-                    background: '#FFD600',
-                    borderRadius: '50%',
-                    width: '16px',
-                    height: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '9px',
-                    fontWeight: '800',
-                    color: '#333',
-                  }}
-                >
+                <span style={{ fontSize: '11px', fontWeight: '800', color: '#fff' }}>
                   {stats.messages > 9 ? '9+' : stats.messages}
-                </div>
+                </span>
               )}
             </div>
           </div>
