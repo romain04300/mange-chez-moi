@@ -273,7 +273,7 @@ function EcranAccueil({ setEcran }) {
               <div
                 style={{ fontSize: '11px', color: '#888', fontWeight: '600', marginBottom: '6px' }}
               >
-                {r.date} · {r.prix} €/pers
+                {r.date} · {r.prix} €/pers {r.ville && `· 📍 ${r.ville}`}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div
@@ -468,7 +468,7 @@ function EcranChercher({ setEcran, user }) {
                     marginBottom: '6px',
                   }}
                 >
-                  {r.date} · {r.prix} €/pers
+                  {r.date} · {r.prix} €/pers {r.ville && `· 📍 ${r.ville}`}
                 </div>
                 <div
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
@@ -1199,6 +1199,9 @@ function EcranClassement({ setEcran }) {
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
                 {j.prenom || 'Anonyme'}
+              </div>
+              <div style={{ fontSize: '10px', color: '#888', fontWeight: '600' }}>
+                📍 {j.ville || 'France'}
               </div>
             </div>
             <div style={{ fontSize: '13px', fontWeight: '800', color: '#FF6B35' }}>
