@@ -126,7 +126,7 @@ function Nav({ ecran, setEcran }) {
 function EcranAccueil({ setEcran, user }) {
   const [repas, setRepas] = useState([])
   const [profil, setProfil] = useState(null)
-  const [stats, setStats] = useState({ repas: 0, membres: 0 })
+  const [stats, setStats] = useState({ repas: 0, membres: 0, messages: 0 })
 
   useEffect(() => {
     async function chargerDonnees() {
