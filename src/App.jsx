@@ -148,7 +148,10 @@ function EcranAccueil({ setEcran, user }) {
       const { count: nbMembres } = await supabase
         .from('profils')
         .select('*', { count: 'exact', head: true })
-      setStats({ repas: nbRepas || 0, membres: nbMembres || 0 })
+      const { count: nbMessages } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+      setStats({ repas: nbRepas || 0, membres: nbMembres || 0, messages: nbMessages || 0 })
     }
     chargerDonnees()
   }, [])
@@ -171,6 +174,7 @@ function EcranAccueil({ setEcran, user }) {
             <div
               onClick={() => setEcran('notifications')}
               style={{
+                position: 'relative',
                 width: '34px',
                 height: '34px',
                 borderRadius: '50%',
@@ -183,10 +187,32 @@ function EcranAccueil({ setEcran, user }) {
               }}
             >
               🔔
+              {stats.repas > 0 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '-4px',
+                    right: '-4px',
+                    background: '#FFD600',
+                    borderRadius: '50%',
+                    width: '16px',
+                    height: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '9px',
+                    fontWeight: '800',
+                    color: '#333',
+                  }}
+                >
+                  {stats.repas > 9 ? '9+' : stats.repas}
+                </div>
+              )}
             </div>
             <div
               onClick={() => setEcran('chat')}
               style={{
+                position: 'relative',
                 width: '34px',
                 height: '34px',
                 borderRadius: '50%',
@@ -199,6 +225,27 @@ function EcranAccueil({ setEcran, user }) {
               }}
             >
               💬
+              {stats.messages > 0 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '-4px',
+                    right: '-4px',
+                    background: '#FFD600',
+                    borderRadius: '50%',
+                    width: '16px',
+                    height: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '9px',
+                    fontWeight: '800',
+                    color: '#333',
+                  }}
+                >
+                  {stats.messages > 9 ? '9+' : stats.messages}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1856,19 +1903,24 @@ function EcranChat({ setEcran, user }) {
       supabase.removeChannel(canal)
     }
   }, [])
+
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight
     }
   }, [messages])
+
   async function envoyer() {
     if (!texte.trim()) return
     await supabase.from('messages').insert({ user_id: user.id, contenu: texte })
     setTexte('')
-    const { data: m } = await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: true })
+  }
+
+  async function vider() {
+    if (window.confirm('Effacer tous les messages ?')) {
+      await supabase.from('messages').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+      setMessages([])
+    }
   }
 
   return (
@@ -1888,9 +1940,23 @@ function EcranChat({ setEcran, user }) {
         >
           ←
         </div>
-        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff', flex: 1 }}>
           Chat communauté 💬
         </span>
+        <div
+          onClick={vider}
+          style={{
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: '700',
+            background: 'rgba(255,255,255,0.25)',
+            padding: '5px 10px',
+            borderRadius: '20px',
+            cursor: 'pointer',
+          }}
+        >
+          🗑️ Vider
+        </div>
       </div>
       <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
         {messages.map((m) => (
@@ -1995,6 +2061,92 @@ function EcranChat({ setEcran, user }) {
     </div>
   )
 }
+function EcranNotifications({ setEcran }) {
+  const [repas, setRepas] = useState([])
+
+  useEffect(() => {
+    async function charger() {
+      const { data } = await supabase
+        .from('repas')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(10)
+      if (data) setRepas(data)
+    }
+    charger()
+  }, [])
+
+  return (
+    <div>
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+          Notifications 🔔
+        </span>
+      </div>
+      <div style={{ padding: '14px 16px' }}>
+        {repas.length === 0 && (
+          <div style={{ fontSize: '13px', color: '#aaa', textAlign: 'center', marginTop: '40px' }}>
+            Aucune notification
+          </div>
+        )}
+        {repas.map((r) => (
+          <div
+            key={r.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '12px',
+              background: '#fff',
+              borderRadius: '14px',
+              border: '1.5px solid #FFE5D0',
+              marginBottom: '10px',
+            }}
+          >
+            <div
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '12px',
+                background: r.couleur,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '22px',
+                flexShrink: 0,
+              }}
+            >
+              {r.emoji}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
+                Nouveau repas 🍽️
+              </div>
+              <div style={{ fontSize: '12px', color: '#555', fontWeight: '600' }}>{r.titre}</div>
+              <div style={{ fontSize: '11px', color: '#aaa', fontWeight: '600' }}>
+                📍 {r.ville || 'France'} · {r.date}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
@@ -2012,6 +2164,7 @@ function App() {
 
   return (
     <div>
+      {ecran === 'notifications' && <EcranNotifications setEcran={setEcran} />}
       {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} user={user} />}
       {ecran === 'chercher' && <EcranChercher setEcran={setEcran} user={user} />}
       {ecran === 'mesrepas' && (
