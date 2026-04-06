@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase'
 
 async function uploadPhoto(file) {
@@ -1827,6 +1827,7 @@ function EcranChat({ setEcran, user }) {
   const [messages, setMessages] = useState([])
   const [texte, setTexte] = useState('')
   const [profil, setProfil] = useState(null)
+  const messagesRef = useRef(null)
 
   useEffect(() => {
     async function charger() {
@@ -1855,7 +1856,11 @@ function EcranChat({ setEcran, user }) {
       supabase.removeChannel(canal)
     }
   }, [])
-
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+    }
+  }, [messages])
   async function envoyer() {
     if (!texte.trim()) return
     await supabase.from('messages').insert({ user_id: user.id, contenu: texte })
@@ -1887,7 +1892,7 @@ function EcranChat({ setEcran, user }) {
           Chat communauté 💬
         </span>
       </div>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+      <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
         {messages.map((m) => (
           <div
             key={m.id}
