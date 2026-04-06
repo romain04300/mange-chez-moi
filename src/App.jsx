@@ -123,18 +123,34 @@ function Nav({ ecran, setEcran }) {
   )
 }
 
-function EcranAccueil({ setEcran }) {
+function EcranAccueil({ setEcran, user }) {
   const [repas, setRepas] = useState([])
+  const [profil, setProfil] = useState(null)
+  const [stats, setStats] = useState({ repas: 0, membres: 0 })
+
   useEffect(() => {
-    async function chargerRepas() {
-      const { data } = await supabase
+    async function chargerDonnees() {
+      const { data: repasData } = await supabase
         .from('repas')
         .select('*')
         .order('id', { ascending: false })
         .limit(5)
-      if (data) setRepas(data)
+      if (repasData) setRepas(repasData)
+      const { data: profilData } = await supabase
+        .from('profils')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      if (profilData) setProfil(profilData)
+      const { count: nbRepas } = await supabase
+        .from('repas')
+        .select('*', { count: 'exact', head: true })
+      const { count: nbMembres } = await supabase
+        .from('profils')
+        .select('*', { count: 'exact', head: true })
+      setStats({ repas: nbRepas || 0, membres: nbMembres || 0 })
     }
-    chargerRepas()
+    chargerDonnees()
   }, [])
 
   return (
@@ -179,6 +195,67 @@ function EcranAccueil({ setEcran }) {
               }}
             >
               💬
+            </div>
+          </div>
+        </div>
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.15)',
+            borderRadius: '14px',
+            padding: '12px 14px',
+            marginBottom: '12px',
+          }}
+        >
+          <div style={{ fontSize: '14px', fontWeight: '800', color: '#fff', marginBottom: '2px' }}>
+            Bonjour {profil?.prenom || 'toi'} 👋
+          </div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)', fontWeight: '600' }}>
+            Que manges-tu ce soir ?
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <div
+            style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: '12px',
+              padding: '8px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>{stats.repas}</div>
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+              Repas
+            </div>
+          </div>
+          <div
+            style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: '12px',
+              padding: '8px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>
+              {stats.membres}
+            </div>
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+              Membres
+            </div>
+          </div>
+          <div
+            style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: '12px',
+              padding: '8px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>🇫🇷</div>
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+              France
             </div>
           </div>
         </div>
@@ -273,7 +350,8 @@ function EcranAccueil({ setEcran }) {
               <div
                 style={{ fontSize: '11px', color: '#888', fontWeight: '600', marginBottom: '6px' }}
               >
-                {r.date} · {r.prix} €/pers {r.ville && `· 📍 ${r.ville}`}
+                {r.ville && <span>📍{r.ville} · </span>}
+                {r.date} · {r.prix} €/pers
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div
@@ -468,7 +546,8 @@ function EcranChercher({ setEcran, user }) {
                     marginBottom: '6px',
                   }}
                 >
-                  {r.date} · {r.prix} €/pers {r.ville && `· 📍 ${r.ville}`}
+                  {r.ville && <span>📍{r.ville} · </span>}
+                  {r.date} · {r.prix} €/pers
                 </div>
                 <div
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
@@ -646,6 +725,34 @@ function EcranCreerRepas({ setEcran }) {
               textTransform: 'uppercase',
             }}
           >
+            Ville
+          </div>
+          <input
+            value={ville}
+            onChange={(e) => setVille(e.target.value)}
+            placeholder="Ex: Paris, Lyon, Bordeaux..."
+            style={{
+              width: '100%',
+              background: '#FFF8F0',
+              border: '1.5px solid #FFE5D0',
+              borderRadius: '12px',
+              padding: '11px 13px',
+              fontFamily: 'Nunito, sans-serif',
+              fontSize: '13px',
+              outline: 'none',
+            }}
+          />
+        </div>
+        <div style={{ marginBottom: '14px' }}>
+          <div
+            style={{
+              fontSize: '12px',
+              fontWeight: '700',
+              color: '#888',
+              marginBottom: '6px',
+              textTransform: 'uppercase',
+            }}
+          >
             Date & heure
           </div>
           <input
@@ -748,34 +855,6 @@ function EcranCreerRepas({ setEcran }) {
               textTransform: 'uppercase',
             }}
           >
-            <div style={{ marginBottom: '14px' }}>
-              <div
-                style={{
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  color: '#888',
-                  marginBottom: '6px',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Ville
-              </div>
-              <input
-                value={ville}
-                onChange={(e) => setVille(e.target.value)}
-                placeholder="Ex: Paris, Lyon, Bordeaux..."
-                style={{
-                  width: '100%',
-                  background: '#FFF8F0',
-                  border: '1.5px solid #FFE5D0',
-                  borderRadius: '12px',
-                  padding: '11px 13px',
-                  fontFamily: 'Nunito, sans-serif',
-                  fontSize: '13px',
-                  outline: 'none',
-                }}
-              />
-            </div>
             Photo du plat
           </div>
           <input
@@ -924,6 +1003,7 @@ function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
                 {r.repas?.titre}
               </div>
               <div style={{ fontSize: '11px', color: '#aaa', fontWeight: '600', marginTop: '2px' }}>
+                {r.repas?.ville && <span>📍{r.repas.ville} · </span>}
                 {r.repas?.date} · {r.repas?.prix} €/pers
               </div>
             </div>
@@ -1359,7 +1439,7 @@ function EcranProfil({ setEcran, setUser, user }) {
             {profil?.prenom || user?.email}
           </div>
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
-            📍 {profil?.ville || 'Marseille'}
+            📍 {profil?.ville || 'France'}
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             <div
@@ -1467,7 +1547,7 @@ function EcranConnexion({ setEcran, setUser }) {
       if (error) {
         setErreur(error.message)
       } else {
-        await supabase.from('profils').insert({ id: data.user.id, prenom, ville: 'Marseille' })
+        await supabase.from('profils').insert({ id: data.user.id, prenom, ville: 'France' })
         setErreur('Compte créé ! Tu peux te connecter.')
       }
     } else {
@@ -1505,7 +1585,7 @@ function EcranConnexion({ setEcran, setUser }) {
           Mange Chez Moi
         </div>
         <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
-          Repas chez l'habitant à Marseille
+          Repas chez l'habitant en France
         </div>
       </div>
       <div style={{ padding: '24px 20px', flex: 1 }}>
@@ -1709,7 +1789,7 @@ function App() {
 
   return (
     <div>
-      {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} />}
+      {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} user={user} />}
       {ecran === 'chercher' && <EcranChercher setEcran={setEcran} user={user} />}
       {ecran === 'mesrepas' && (
         <EcranMesRepas setEcran={setEcran} user={user} setRepasSelectionne={setRepasSelectionne} />
