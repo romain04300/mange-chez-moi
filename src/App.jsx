@@ -409,6 +409,7 @@ function EcranChercher({ setEcran, user }) {
   const [erreur, setErreur] = useState('')
   const [message, setMessage] = useState('')
   const [filtreVille, setFiltreVille] = useState('')
+  const [repasChat, setRepasChat] = useState(null)
 
   useEffect(() => {
     async function chargerDonnees() {
@@ -563,6 +564,24 @@ function EcranChercher({ setEcran, user }) {
                   {r.date} · {r.prix} €/pers
                 </div>
                 <div
+                  onClick={() => {
+                    setRepasChat(r.id)
+                    setEcran('chatrepas')
+                  }}
+                  style={{
+                    background: '#EDE0FF',
+                    color: '#6B35FF',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    padding: '6px 14px',
+                    borderRadius: '20px',
+                    cursor: 'pointer',
+                    marginRight: '6px',
+                  }}
+                >
+                  💬
+                </div>
+                <div
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                 >
                   <div
@@ -576,20 +595,6 @@ function EcranChercher({ setEcran, user }) {
                     }}
                   >
                     {r.badge}
-                  </div>
-                  <div
-                    onClick={() => !mesReservations.includes(r.id) && reserver(r.id)}
-                    style={{
-                      background: mesReservations.includes(r.id) ? '#E0F5E8' : '#FF6B35',
-                      color: mesReservations.includes(r.id) ? '#085041' : '#fff',
-                      fontSize: '11px',
-                      fontWeight: '700',
-                      padding: '6px 14px',
-                      borderRadius: '20px',
-                      cursor: mesReservations.includes(r.id) ? 'default' : 'pointer',
-                    }}
-                  >
-                    {mesReservations.includes(r.id) ? 'Réservé ✓' : 'Réserver'}
                   </div>
                 </div>
               </div>
@@ -2109,10 +2114,195 @@ function EcranNotifications({ setEcran }) {
     </div>
   )
 }
+function EcranChatRepas({ setEcran, user, repasId }) {
+  const [messages, setMessages] = useState([])
+  const [texte, setTexte] = useState('')
+  const [profil, setProfil] = useState(null)
+  const [repas, setRepas] = useState(null)
+  const messagesRef = useRef(null)
+
+  useEffect(() => {
+    async function charger() {
+      const { data: p } = await supabase.from('profils').select('*').eq('id', user.id).single()
+      setProfil(p)
+      const { data: r } = await supabase.from('repas').select('*').eq('id', repasId).single()
+      setRepas(r)
+      const { data: m } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('repas_id', repasId)
+        .order('created_at', { ascending: true })
+      if (m) setMessages(m)
+    }
+    charger()
+
+    const canal = supabase
+      .channel('messages-repas-' + repasId)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `repas_id=eq.${repasId}` },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new])
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(canal)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+    }
+  }, [messages])
+
+  async function envoyer() {
+    if (!texte.trim()) return
+    await supabase.from('messages').insert({ user_id: user.id, contenu: texte, repas_id: repasId })
+    setTexte('')
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('chercher')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <div style={{ flex: 1 }}>
+          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '16px', color: '#fff' }}>
+            Chat 💬
+          </span>
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+            {repas?.titre}
+          </div>
+        </div>
+      </div>
+      <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+        {messages.length === 0 && (
+          <div style={{ textAlign: 'center', color: '#aaa', fontSize: '13px', marginTop: '40px' }}>
+            Aucun message — soyez le premier ! 👋
+          </div>
+        )}
+        {messages.map((m) => (
+          <div
+            key={m.id}
+            style={{
+              marginBottom: '12px',
+              display: 'flex',
+              flexDirection: m.user_id === user.id ? 'row-reverse' : 'row',
+              gap: '8px',
+              alignItems: 'flex-end',
+            }}
+          >
+            <div
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: '#FFE5D0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                flexShrink: 0,
+              }}
+            >
+              👤
+            </div>
+            <div>
+              <div
+                style={{
+                  fontSize: '10px',
+                  color: '#aaa',
+                  fontWeight: '600',
+                  marginBottom: '2px',
+                  textAlign: m.user_id === user.id ? 'right' : 'left',
+                }}
+              >
+                {m.user_id === user.id ? profil?.prenom || 'Moi' : 'Membre'}
+              </div>
+              <div
+                style={{
+                  background: m.user_id === user.id ? '#FF6B35' : '#fff',
+                  color: m.user_id === user.id ? '#fff' : '#222',
+                  borderRadius: '14px',
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  border: '1.5px solid #FFE5D0',
+                  maxWidth: '220px',
+                }}
+              >
+                {m.contenu}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div
+        style={{
+          padding: '10px 16px',
+          background: '#fff',
+          borderTop: '1.5px solid #FFE5D0',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center',
+        }}
+      >
+        <input
+          value={texte}
+          onChange={(e) => setTexte(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && envoyer()}
+          placeholder="Ton message..."
+          style={{
+            flex: 1,
+            background: '#FFF8F0',
+            border: '1.5px solid #FFE5D0',
+            borderRadius: '20px',
+            padding: '10px 14px',
+            fontFamily: 'Nunito, sans-serif',
+            fontSize: '13px',
+            outline: 'none',
+          }}
+        />
+        <div
+          onClick={envoyer}
+          style={{
+            background: '#FF6B35',
+            borderRadius: '50%',
+            width: '38px',
+            height: '38px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '18px',
+          }}
+        >
+          ➤
+        </div>
+      </div>
+    </div>
+  )
+}
 function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
   const [repasSelectionne, setRepasSelectionne] = useState(null)
+  const [repasChat, setRepasChat] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -2129,6 +2319,9 @@ function App() {
       {ecran === 'notifications' && <EcranNotifications setEcran={setEcran} />}
       {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} user={user} />}
       {ecran === 'chercher' && <EcranChercher setEcran={setEcran} user={user} />}
+      {ecran === 'chercher' && (
+        <EcranChercher setEcran={setEcran} user={user} setRepasChat={setRepasChat} />
+      )}
       {ecran === 'mesrepas' && (
         <EcranMesRepas setEcran={setEcran} user={user} setRepasSelectionne={setRepasSelectionne} />
       )}
@@ -2140,6 +2333,9 @@ function App() {
       {ecran === 'profil' && <EcranProfil setEcran={setEcran} setUser={setUser} user={user} />}
       {ecran === 'chat' && <EcranChat setEcran={setEcran} user={user} />}
       <Nav ecran={ecran} setEcran={setEcran} />
+      {ecran === 'chatrepas' && (
+        <EcranChatRepas setEcran={setEcran} user={user} repasId={repasChat} />
+      )}
     </div>
   )
 }
