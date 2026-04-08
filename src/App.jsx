@@ -403,13 +403,12 @@ function EcranAccueil({ setEcran, user }) {
   )
 }
 
-function EcranChercher({ setEcran, user }) {
+function EcranChercher({ setEcran, user, setRepasChat }) {
   const [repas, setRepas] = useState([])
   const [mesReservations, setMesReservations] = useState([])
   const [erreur, setErreur] = useState('')
   const [message, setMessage] = useState('')
   const [filtreVille, setFiltreVille] = useState('')
-  const [repasChat, setRepasChat] = useState(null)
 
   useEffect(() => {
     async function chargerDonnees() {
@@ -566,7 +565,7 @@ function EcranChercher({ setEcran, user }) {
                 <div
                   onClick={() => {
                     setRepasChat(r.id)
-                    setEcran('chatrepas')
+                    setTimeout(() => setEcran('chatrepas'), 50)
                   }}
                   style={{
                     background: '#EDE0FF',
@@ -2318,7 +2317,6 @@ function App() {
     <div>
       {ecran === 'notifications' && <EcranNotifications setEcran={setEcran} />}
       {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} user={user} />}
-      {ecran === 'chercher' && <EcranChercher setEcran={setEcran} user={user} />}
       {ecran === 'chercher' && (
         <EcranChercher setEcran={setEcran} user={user} setRepasChat={setRepasChat} />
       )}
@@ -2332,10 +2330,10 @@ function App() {
       {ecran === 'classement' && <EcranClassement setEcran={setEcran} />}
       {ecran === 'profil' && <EcranProfil setEcran={setEcran} setUser={setUser} user={user} />}
       {ecran === 'chat' && <EcranChat setEcran={setEcran} user={user} />}
-      <Nav ecran={ecran} setEcran={setEcran} />
       {ecran === 'chatrepas' && (
         <EcranChatRepas setEcran={setEcran} user={user} repasId={repasChat} />
       )}
+      <Nav ecran={ecran} setEcran={setEcran} />
     </div>
   )
 }
