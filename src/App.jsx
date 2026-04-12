@@ -1484,6 +1484,23 @@ function EcranProfil({ setEcran, setUser, user }) {
           <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '17px', color: '#fff' }}>
             Mon profil
           </span>
+          {user.id === 'd89917e9-93b3-40a8-aca2-54627992354b' && (
+            <div
+              onClick={() => setEcran('admin')}
+              style={{
+                background: 'rgba(255,214,0,0.3)',
+                borderRadius: '20px',
+                padding: '5px 12px',
+                fontSize: '12px',
+                fontWeight: '700',
+                color: '#fff',
+                cursor: 'pointer',
+                marginRight: '6px',
+              }}
+            >
+              🔧 Admin
+            </div>
+          )}
           <div
             onClick={async () => {
               await supabase.auth.signOut()
@@ -1899,6 +1916,7 @@ function EcranChat({ setEcran, user }) {
   const [texte, setTexte] = useState('')
   const [profil, setProfil] = useState(null)
   const messagesRef = useRef(null)
+  const [messageSelectionne, setMessageSelectionne] = useState(null)
 
   useEffect(() => {
     async function charger() {
@@ -1913,12 +1931,14 @@ function EcranChat({ setEcran, user }) {
     }
     charger()
     const canal = supabase
-      .channel('messages-global')
+      .channel('messages-global-' + Date.now())
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: 'repas_id=is.null' },
+        { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new])
+          if (!payload.new.repas_id) {
+            setMessages((prev) => [...prev, payload.new])
+          }
         },
       )
       .subscribe()
@@ -1964,78 +1984,208 @@ function EcranChat({ setEcran, user }) {
         <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff', flex: 1 }}>
           Chat communauté 💬
         </span>
+      </div>
+      {messageSelectionne && (
         <div
-          onClick={vider}
           style={{
-            color: '#fff',
-            fontSize: '12px',
-            fontWeight: '700',
-            background: 'rgba(255,255,255,0.25)',
-            padding: '5px 10px',
-            borderRadius: '20px',
-            cursor: 'pointer',
+            position: 'fixed',
+            bottom: '0',
+            left: '0',
+            right: '0',
+            background: '#fff',
+            borderRadius: '20px 20px 0 0',
+            padding: '16px',
+            zIndex: 100,
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
           }}
         >
-          🗑️ Vider
-        </div>
-      </div>
-      <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
-        {messages.map((m) => (
           <div
-            key={m.id}
             style={{
+              fontSize: '13px',
+              color: '#888',
+              fontWeight: '600',
               marginBottom: '12px',
-              display: 'flex',
-              flexDirection: m.user_id === user.id ? 'row-reverse' : 'row',
-              gap: '8px',
-              alignItems: 'flex-end',
+              textAlign: 'center',
             }}
           >
+            Mon message
+          </div>
+          <div
+            style={{
+              background: '#FFF8F0',
+              borderRadius: '12px',
+              padding: '10px 12px',
+              fontSize: '13px',
+              color: '#222',
+              fontWeight: '600',
+              marginBottom: '12px',
+            }}
+          >
+            {messageSelectionne.contenu}
+          </div>
+          <div
+            onClick={async () => {
+              const nouveau = messageSelectionne.contenu
+              setMessageSelectionne({ ...messageSelectionne, modifier: true })
+            }}
+            style={{
+              background: '#FF6B35',
+              borderRadius: '12px',
+              padding: '12px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#fff',
+              cursor: 'pointer',
+              marginBottom: '8px',
+            }}
+          >
+            ✏️ Modifier
+          </div>
+          {messageSelectionne.modifier && (
+            <div style={{ marginBottom: '8px' }}>
+              <input
+                defaultValue={messageSelectionne.contenu}
+                id="input-modifier"
+                style={{
+                  width: '100%',
+                  background: '#FFF8F0',
+                  border: '1.5px solid #FFE5D0',
+                  borderRadius: '12px',
+                  padding: '10px 12px',
+                  fontFamily: 'Nunito, sans-serif',
+                  fontSize: '13px',
+                  outline: 'none',
+                }}
+              />
+              <div
+                onClick={async () => {
+                  const nouveau = document.getElementById('input-modifier').value
+                  if (nouveau && nouveau.trim()) {
+                    await supabase
+                      .from('messages')
+                      .update({ contenu: nouveau })
+                      .eq('id', messageSelectionne.id)
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === messageSelectionne.id ? { ...msg, contenu: nouveau } : msg,
+                      ),
+                    )
+                    setMessageSelectionne(null)
+                  }
+                }}
+                style={{
+                  background: '#4CAF50',
+                  borderRadius: '12px',
+                  padding: '10px',
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  marginTop: '8px',
+                }}
+              >
+                ✅ Valider
+              </div>
+            </div>
+          )}
+          <div
+            onClick={async () => {
+              await supabase.from('messages').delete().eq('id', messageSelectionne.id)
+              setMessages((prev) => prev.filter((msg) => msg.id !== messageSelectionne.id))
+              setMessageSelectionne(null)
+            }}
+            style={{
+              background: '#FF3B30',
+              borderRadius: '12px',
+              padding: '12px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#fff',
+              cursor: 'pointer',
+              marginBottom: '8px',
+            }}
+          >
+            🗑️ Supprimer
+          </div>
+          <div
+            onClick={() => setMessageSelectionne(null)}
+            style={{
+              background: '#f5f5f5',
+              borderRadius: '12px',
+              padding: '12px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#888',
+              cursor: 'pointer',
+            }}
+          >
+            Annuler
+          </div>
+        </div>
+      )}
+      {messages.map((m) => (
+        <div
+          key={m.id}
+          style={{
+            marginBottom: '12px',
+            display: 'flex',
+            flexDirection: m.user_id === user.id ? 'row-reverse' : 'row',
+            gap: '8px',
+            alignItems: 'flex-end',
+          }}
+        >
+          <div
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              background: '#FFE5D0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              flexShrink: 0,
+            }}
+          >
+            👤
+          </div>
+          <div>
             <div
               style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                background: '#FFE5D0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                flexShrink: 0,
+                fontSize: '10px',
+                color: '#aaa',
+                fontWeight: '600',
+                marginBottom: '2px',
+                textAlign: m.user_id === user.id ? 'right' : 'left',
               }}
             >
-              👤
+              {m.user_id === user.id ? profil?.prenom || 'Moi' : 'Membre'}
             </div>
-            <div>
-              <div
-                style={{
-                  fontSize: '10px',
-                  color: '#aaa',
-                  fontWeight: '600',
-                  marginBottom: '2px',
-                  textAlign: m.user_id === user.id ? 'right' : 'left',
-                }}
-              >
-                {m.user_id === user.id ? profil?.prenom || 'Moi' : 'Membre'}
-              </div>
-              <div
-                style={{
-                  background: m.user_id === user.id ? '#FF6B35' : '#fff',
-                  color: m.user_id === user.id ? '#fff' : '#222',
-                  borderRadius: '14px',
-                  padding: '8px 12px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  border: '1.5px solid #FFE5D0',
-                  maxWidth: '220px',
-                }}
-              >
-                {m.contenu}
-              </div>
+            <div
+              onClick={() => {
+                if (m.user_id === user.id) setMessageSelectionne(m)
+              }}
+              style={{
+                background: m.user_id === user.id ? '#FF6B35' : '#fff',
+                color: m.user_id === user.id ? '#fff' : '#222',
+                borderRadius: '14px',
+                padding: '8px 12px',
+                fontSize: '13px',
+                fontWeight: '600',
+                border: '1.5px solid #FFE5D0',
+                maxWidth: '220px',
+                cursor: m.user_id === user.id ? 'pointer' : 'default',
+              }}
+            >
+              {m.contenu}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
       <div
         style={{
           padding: '10px 16px',
@@ -2580,7 +2730,233 @@ function EcranConfidentialite({ setEcran }) {
     </div>
   )
 }
+function EcranAdmin({ setEcran, user }) {
+  const [messages, setMessages] = useState([])
+  const [utilisateurs, setUtilisateurs] = useState([])
+  const [onglet, setOnglet] = useState('messages')
 
+  useEffect(() => {
+    async function charger() {
+      const { data: m } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50)
+      if (m) setMessages(m)
+      const { data: u } = await supabase.from('profils').select('*')
+      if (u) setUtilisateurs(u)
+    }
+    charger()
+
+    const canal = supabase
+      .channel('admin-messages')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+        charger()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(canal)
+    }
+  }, [])
+
+  async function supprimerMessage(id) {
+    await supabase.from('messages').delete().eq('id', id)
+    setMessages(messages.filter((m) => m.id !== id))
+  }
+
+  async function viderToutChat() {
+    if (window.confirm('Vider tous les messages ?')) {
+      await supabase.from('messages').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+      setMessages([])
+    }
+  }
+
+  return (
+    <div>
+      <div
+        style={{
+          background: '#222',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <span
+          style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#FFD600', flex: 1 }}
+        >
+          Panel Admin 🔧
+        </span>
+      </div>
+      <div style={{ display: 'flex', background: '#333', padding: '4px' }}>
+        <div
+          onClick={() => setOnglet('messages')}
+          style={{
+            flex: 1,
+            padding: '8px',
+            textAlign: 'center',
+            borderRadius: '8px',
+            background: onglet === 'messages' ? '#FF6B35' : 'transparent',
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: '700',
+            cursor: 'pointer',
+          }}
+        >
+          💬 Messages ({messages.length})
+        </div>
+        <div
+          onClick={() => setOnglet('utilisateurs')}
+          style={{
+            flex: 1,
+            padding: '8px',
+            textAlign: 'center',
+            borderRadius: '8px',
+            background: onglet === 'utilisateurs' ? '#FF6B35' : 'transparent',
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: '700',
+            cursor: 'pointer',
+          }}
+        >
+          👥 Membres ({utilisateurs.length})
+        </div>
+      </div>
+      {onglet === 'messages' && (
+        <div style={{ padding: '14px 16px' }}>
+          <div
+            onClick={viderToutChat}
+            style={{
+              background: '#FF3B30',
+              borderRadius: '12px',
+              padding: '10px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#fff',
+              cursor: 'pointer',
+              marginBottom: '12px',
+            }}
+          >
+            🗑️ Vider tout le chat
+          </div>
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              style={{
+                background: '#fff',
+                borderRadius: '12px',
+                border: '1.5px solid #FFE5D0',
+                padding: '10px 12px',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '8px',
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: '10px',
+                    color: '#aaa',
+                    fontWeight: '600',
+                    marginBottom: '4px',
+                  }}
+                >
+                  {new Date(m.created_at).toLocaleString('fr-FR')} ·{' '}
+                  {m.repas_id ? '💬 Chat repas' : '🌍 Chat global'}
+                </div>
+                <div style={{ fontSize: '13px', color: '#222', fontWeight: '600' }}>
+                  {m.contenu}
+                </div>
+              </div>
+              <div
+                onClick={() => supprimerMessage(m.id)}
+                style={{
+                  background: '#FF3B30',
+                  borderRadius: '8px',
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  color: '#fff',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                🗑️
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {onglet === 'utilisateurs' && (
+        <div style={{ padding: '14px 16px' }}>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
+            {utilisateurs.length} membres inscrits
+          </div>
+          {utilisateurs.map((u) => (
+            <div
+              key={u.id}
+              style={{
+                background: '#fff',
+                borderRadius: '12px',
+                border: '1.5px solid #FFE5D0',
+                padding: '10px 12px',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              <div
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: '#FFE5D0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                  flexShrink: 0,
+                }}
+              >
+                {u.photo_url ? (
+                  <img
+                    src={u.photo_url}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  '👤'
+                )}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
+                  {u.prenom || 'Anonyme'}
+                </div>
+                <div style={{ fontSize: '11px', color: '#aaa', fontWeight: '600' }}>
+                  📍 {u.ville || 'France'}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
@@ -2624,6 +3000,9 @@ function App() {
       {ecran === 'mentions' && <EcranMentions setEcran={setEcran} />}
       {ecran === 'confidentialite' && <EcranConfidentialite setEcran={setEcran} />}
       <Nav ecran={ecran} setEcran={setEcran} />
+      {ecran === 'admin' && user.id === 'd89917e9-93b3-40a8-aca2-54627992354b' && (
+        <EcranAdmin setEcran={setEcran} user={user} />
+      )}
     </div>
   )
 }
