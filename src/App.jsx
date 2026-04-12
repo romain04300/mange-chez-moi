@@ -151,11 +151,7 @@ function EcranAccueil({ setEcran, user }) {
       const { count: nbMessages } = await supabase
         .from('messages')
         .select('*', { count: 'exact', head: true })
-      setStats({
-        repas: nbRepas || 0,
-        membres: nbMembres || 0,
-        messages: nbMessages || 0,
-      })
+      setStats({ repas: nbRepas || 0, membres: nbMembres || 0, messages: nbMessages || 0 })
     }
     chargerDonnees()
   }, [])
@@ -171,13 +167,7 @@ function EcranAccueil({ setEcran, user }) {
             marginBottom: '12px',
           }}
         >
-          <span
-            style={{
-              fontFamily: 'Pacifico, cursive',
-              fontSize: '22px',
-              color: '#fff',
-            }}
-          >
+          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '22px', color: '#fff' }}>
             Mange Chez Moi
           </span>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -229,23 +219,10 @@ function EcranAccueil({ setEcran, user }) {
             marginBottom: '12px',
           }}
         >
-          <div
-            style={{
-              fontSize: '14px',
-              fontWeight: '800',
-              color: '#fff',
-              marginBottom: '2px',
-            }}
-          >
+          <div style={{ fontSize: '14px', fontWeight: '800', color: '#fff', marginBottom: '2px' }}>
             Bonjour {profil?.prenom || 'toi'} 👋
           </div>
-          <div
-            style={{
-              fontSize: '12px',
-              color: 'rgba(255,255,255,0.85)',
-              fontWeight: '600',
-            }}
-          >
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)', fontWeight: '600' }}>
             Que manges-tu ce soir ?
           </div>
         </div>
@@ -260,13 +237,7 @@ function EcranAccueil({ setEcran, user }) {
             }}
           >
             <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>{stats.repas}</div>
-            <div
-              style={{
-                fontSize: '9px',
-                color: 'rgba(255,255,255,0.8)',
-                fontWeight: '600',
-              }}
-            >
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
               Repas
             </div>
           </div>
@@ -282,13 +253,7 @@ function EcranAccueil({ setEcran, user }) {
             <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>
               {stats.membres}
             </div>
-            <div
-              style={{
-                fontSize: '9px',
-                color: 'rgba(255,255,255,0.8)',
-                fontWeight: '600',
-              }}
-            >
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
               Membres
             </div>
           </div>
@@ -302,35 +267,18 @@ function EcranAccueil({ setEcran, user }) {
             }}
           >
             <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>🇫🇷</div>
-            <div
-              style={{
-                fontSize: '9px',
-                color: 'rgba(255,255,255,0.8)',
-                fontWeight: '600',
-              }}
-            >
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
               France
             </div>
           </div>
         </div>
       </div>
       <div style={{ background: '#fff', padding: '14px 16px' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '12px',
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
           <span style={{ fontSize: '14px', fontWeight: '800' }}>Repas à venir</span>
           <span
             onClick={() => setEcran('chercher')}
-            style={{
-              fontSize: '11px',
-              fontWeight: '700',
-              color: '#FF6B35',
-              cursor: 'pointer',
-            }}
+            style={{ fontSize: '11px', fontWeight: '700', color: '#FF6B35', cursor: 'pointer' }}
           >
             Tout voir
           </span>
@@ -372,13 +320,7 @@ function EcranAccueil({ setEcran, user }) {
             <div style={{ fontSize: '13px', fontWeight: '800', color: '#fff' }}>
               Organise un repas chez toi
             </div>
-            <div
-              style={{
-                fontSize: '11px',
-                color: 'rgba(255,255,255,0.8)',
-                fontWeight: '600',
-              }}
-            >
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
               3-4 invités · tu fixes le prix
             </div>
           </div>
@@ -415,22 +357,11 @@ function EcranAccueil({ setEcran, user }) {
               </div>
             )}
             <div style={{ padding: '10px 12px' }}>
-              <div
-                style={{
-                  fontSize: '13px',
-                  fontWeight: '800',
-                  marginBottom: '4px',
-                }}
-              >
+              <div style={{ fontSize: '13px', fontWeight: '800', marginBottom: '4px' }}>
                 {r.titre}
               </div>
               <div
-                style={{
-                  fontSize: '11px',
-                  color: '#888',
-                  fontWeight: '600',
-                  marginBottom: '6px',
-                }}
+                style={{ fontSize: '11px', color: '#888', fontWeight: '600', marginBottom: '6px' }}
               >
                 {r.ville && <span>📍{r.ville} · </span>}
                 {r.date} · {r.prix} €/pers
@@ -477,7 +408,7 @@ function EcranAccueil({ setEcran, user }) {
         >
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <span
-              onClick={() => setEcran('legal')}
+              onClick={() => setEcran('cgu')}
               style={{
                 fontSize: '11px',
                 color: '#aaa',
@@ -489,7 +420,7 @@ function EcranAccueil({ setEcran, user }) {
               CGU
             </span>
             <span
-              onClick={() => setEcran('legal')}
+              onClick={() => setEcran('mentions')}
               style={{
                 fontSize: '11px',
                 color: '#aaa',
@@ -501,7 +432,7 @@ function EcranAccueil({ setEcran, user }) {
               Mentions légales
             </span>
             <span
-              onClick={() => setEcran('legal')}
+              onClick={() => setEcran('confidentialite')}
               style={{
                 fontSize: '11px',
                 color: '#aaa',
@@ -682,11 +613,7 @@ function EcranChercher({ setEcran, user, onChatRepas }) {
                   {r.date} · {r.prix} €/pers
                 </div>
                 <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                 >
                   <div
                     style={{
@@ -763,17 +690,19 @@ function EcranCreerRepas({ setEcran }) {
       setMessage('Remplis le titre et la date !')
       return
     }
-    const { error } = await supabase.from('repas').insert({
-      titre,
-      emoji,
-      date,
-      places,
-      prix,
-      couleur: '#FFECD0',
-      badge: places + ' places dispo',
-      photo_url: photoUrl,
-      ville,
-    })
+    const { error } = await supabase
+      .from('repas')
+      .insert({
+        titre,
+        emoji,
+        date,
+        places,
+        prix,
+        couleur: '#FFECD0',
+        badge: places + ' places dispo',
+        photo_url: photoUrl,
+        ville,
+      })
     if (error) {
       setMessage('Erreur : ' + error.message)
     } else {
@@ -799,13 +728,7 @@ function EcranCreerRepas({ setEcran }) {
         >
           ←
         </div>
-        <span
-          style={{
-            fontFamily: 'Pacifico, cursive',
-            fontSize: '18px',
-            color: '#fff',
-          }}
-        >
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
           Nouveau repas
         </span>
       </div>
@@ -1086,13 +1009,7 @@ function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
   return (
     <div>
       <div style={{ background: '#FF6B35', padding: '10px 16px 14px' }}>
-        <span
-          style={{
-            fontFamily: 'Pacifico, cursive',
-            fontSize: '18px',
-            color: '#fff',
-          }}
-        >
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
           Mes repas
         </span>
       </div>
@@ -1115,26 +1032,13 @@ function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
             <div style={{ fontSize: '13px', fontWeight: '800', color: '#fff' }}>
               Organiser un nouveau repas
             </div>
-            <div
-              style={{
-                fontSize: '11px',
-                color: 'rgba(255,255,255,0.8)',
-                fontWeight: '600',
-              }}
-            >
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
               3-4 invités · tu fixes le prix
             </div>
           </div>
           <span style={{ fontSize: '18px', color: 'rgba(255,255,255,0.7)' }}>›</span>
         </div>
-        <div
-          style={{
-            fontSize: '13px',
-            fontWeight: '800',
-            color: '#222',
-            marginBottom: '12px',
-          }}
-        >
+        <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
           Mes réservations ({reservations.length})
         </div>
         {reservations.map((r) => (
@@ -1179,14 +1083,7 @@ function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
               <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
                 {r.repas?.titre}
               </div>
-              <div
-                style={{
-                  fontSize: '11px',
-                  color: '#aaa',
-                  fontWeight: '600',
-                  marginTop: '2px',
-                }}
-              >
+              <div style={{ fontSize: '11px', color: '#aaa', fontWeight: '600', marginTop: '2px' }}>
                 {r.repas?.ville && <span>📍{r.repas.ville} · </span>}
                 {r.repas?.date} · {r.repas?.prix} €/pers
               </div>
@@ -1253,26 +1150,13 @@ function EcranNotation({ setEcran, user, repasId }) {
         >
           ←
         </div>
-        <span
-          style={{
-            fontFamily: 'Pacifico, cursive',
-            fontSize: '18px',
-            color: '#fff',
-          }}
-        >
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
           Noter ce repas
         </span>
       </div>
       <div style={{ padding: '20px 16px' }}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div
-            style={{
-              fontSize: '14px',
-              fontWeight: '800',
-              color: '#222',
-              marginBottom: '16px',
-            }}
-          >
+          <div style={{ fontSize: '14px', fontWeight: '800', color: '#222', marginBottom: '16px' }}>
             Quelle note donnes-tu à ce repas ?
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
@@ -1297,14 +1181,7 @@ function EcranNotation({ setEcran, user, repasId }) {
               </div>
             ))}
           </div>
-          <div
-            style={{
-              fontSize: '13px',
-              fontWeight: '700',
-              color: '#FF6B35',
-              marginTop: '10px',
-            }}
-          >
+          <div style={{ fontSize: '13px', fontWeight: '700', color: '#FF6B35', marginTop: '10px' }}>
             {note === 0
               ? 'Clique sur une étoile'
               : note === 1
@@ -1401,22 +1278,12 @@ function EcranClassement({ setEcran }) {
         <div style={{ background: '#FF6B35', padding: '10px 16px 24px' }}>
           <div
             onClick={() => setMembreSelectionne(null)}
-            style={{
-              color: '#fff',
-              fontSize: '18px',
-              cursor: 'pointer',
-              marginBottom: '10px',
-            }}
+            style={{ color: '#fff', fontSize: '18px', cursor: 'pointer', marginBottom: '10px' }}
           >
             ←
           </div>
           <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '8px',
-            }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
           >
             <div
               style={{
@@ -1436,36 +1303,17 @@ function EcranClassement({ setEcran }) {
             <div style={{ fontSize: '17px', fontWeight: '800', color: '#fff' }}>
               {membreSelectionne.prenom || 'Anonyme'}
             </div>
-            <div
-              style={{
-                fontSize: '12px',
-                color: 'rgba(255,255,255,0.8)',
-                fontWeight: '600',
-              }}
-            >
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
               📍 {membreSelectionne.ville || 'France'}
             </div>
           </div>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            background: '#fff',
-            borderBottom: '1.5px solid #FFE5D0',
-          }}
-        >
+        <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #FFE5D0' }}>
           <div style={{ flex: 1, padding: '12px 8px', textAlign: 'center' }}>
             <div style={{ fontSize: '18px', fontWeight: '800', color: '#FF6B35' }}>
               {Math.round(membreSelectionne.total_pts)}
             </div>
-            <div
-              style={{
-                fontSize: '10px',
-                fontWeight: '700',
-                color: '#aaa',
-                marginTop: '2px',
-              }}
-            >
+            <div style={{ fontSize: '10px', fontWeight: '700', color: '#aaa', marginTop: '2px' }}>
               Points
             </div>
           </div>
@@ -1484,13 +1332,7 @@ function EcranClassement({ setEcran }) {
             marginBottom: '12px',
           }}
         >
-          <span
-            style={{
-              fontFamily: 'Pacifico, cursive',
-              fontSize: '18px',
-              color: '#fff',
-            }}
-          >
+          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
             Classement
           </span>
           <div
@@ -1515,13 +1357,7 @@ function EcranClassement({ setEcran }) {
             justifyContent: 'space-between',
           }}
         >
-          <span
-            style={{
-              fontSize: '11px',
-              fontWeight: '700',
-              color: 'rgba(255,255,255,0.9)',
-            }}
-          >
+          <span style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.9)' }}>
             Fin de manche dans
           </span>
           <span style={{ fontSize: '13px', fontWeight: '800', color: '#fff' }}>12 jours</span>
@@ -1572,13 +1408,7 @@ function EcranClassement({ setEcran }) {
               👤
             </div>
             <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => setMembreSelectionne(j)}>
-              <div
-                style={{
-                  fontSize: '13px',
-                  fontWeight: '800',
-                  color: '#FF6B35',
-                }}
-              >
+              <div style={{ fontSize: '13px', fontWeight: '800', color: '#FF6B35' }}>
                 {j.prenom || 'Anonyme'}
               </div>
               <div style={{ fontSize: '10px', color: '#888', fontWeight: '600' }}>
@@ -1653,13 +1483,7 @@ function EcranProfil({ setEcran, setUser, user }) {
             marginBottom: '16px',
           }}
         >
-          <span
-            style={{
-              fontFamily: 'Pacifico, cursive',
-              fontSize: '17px',
-              color: '#fff',
-            }}
-          >
+          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '17px', color: '#fff' }}>
             Mon profil
           </span>
           <div
@@ -1680,14 +1504,7 @@ function EcranProfil({ setEcran, setUser, user }) {
             Déconnexion
           </div>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
           <div style={{ position: 'relative' }}>
             {profil?.photo_url ? (
               <img
@@ -1751,24 +1568,12 @@ function EcranProfil({ setEcran, setUser, user }) {
           <div style={{ fontSize: '17px', fontWeight: '800', color: '#fff' }}>
             {profil?.prenom || user?.email}
           </div>
-          <div
-            style={{
-              fontSize: '12px',
-              color: 'rgba(255,255,255,0.8)',
-              fontWeight: '600',
-            }}
-          >
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
             📍 {profil?.ville || 'France'}
           </div>
         </div>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          background: '#fff',
-          borderBottom: '1.5px solid #FFE5D0',
-        }}
-      >
+      <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #FFE5D0' }}>
         {[
           ['?', 'Repas'],
           [moyenne || '?', 'Note'],
@@ -1785,28 +1590,14 @@ function EcranProfil({ setEcran, setUser, user }) {
             }}
           >
             <div style={{ fontSize: '18px', fontWeight: '800', color: '#FF6B35' }}>{val}</div>
-            <div
-              style={{
-                fontSize: '10px',
-                fontWeight: '700',
-                color: '#aaa',
-                marginTop: '2px',
-              }}
-            >
+            <div style={{ fontSize: '10px', fontWeight: '700', color: '#aaa', marginTop: '2px' }}>
               {label}
             </div>
           </div>
         ))}
       </div>
       <div style={{ padding: '14px 16px' }}>
-        <div
-          style={{
-            fontSize: '13px',
-            fontWeight: '800',
-            color: '#222',
-            marginBottom: '12px',
-          }}
-        >
+        <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
           Mes derniers avis donnés
         </div>
         {notations.length === 0 && (
@@ -1824,37 +1615,18 @@ function EcranProfil({ setEcran, setUser, user }) {
               marginBottom: '10px',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '6px',
-              }}
-            >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <div style={{ color: '#FFD600', fontSize: '14px' }}>
                 {'★'.repeat(n.note)}
                 {'☆'.repeat(5 - n.note)}
               </div>
               <div
-                style={{
-                  marginLeft: 'auto',
-                  fontSize: '10px',
-                  color: '#aaa',
-                  fontWeight: '600',
-                }}
+                style={{ marginLeft: 'auto', fontSize: '10px', color: '#aaa', fontWeight: '600' }}
               >
                 {new Date(n.created_at).toLocaleDateString('fr-FR')}
               </div>
             </div>
-            <div
-              style={{
-                fontSize: '12px',
-                color: '#555',
-                fontWeight: '600',
-                lineHeight: '1.5',
-              }}
-            >
+            <div style={{ fontSize: '12px', color: '#555', fontWeight: '600', lineHeight: '1.5' }}>
               {n.commentaire || 'Pas de commentaire'}
             </div>
           </div>
@@ -1875,10 +1647,7 @@ function EcranConnexion({ setEcran, setUser }) {
   async function handleSubmit() {
     setErreur('')
     if (mode === 'inscription') {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password: motdepasse,
-      })
+      const { data, error } = await supabase.auth.signUp({ email, password: motdepasse })
       if (error) {
         setErreur(error.message)
       } else {
@@ -1908,13 +1677,7 @@ function EcranConnexion({ setEcran, setUser }) {
         flexDirection: 'column',
       }}
     >
-      <div
-        style={{
-          background: '#FF6B35',
-          padding: '40px 24px 30px',
-          textAlign: 'center',
-        }}
-      >
+      <div style={{ background: '#FF6B35', padding: '40px 24px 30px', textAlign: 'center' }}>
         <div
           style={{
             fontFamily: 'Pacifico, cursive',
@@ -1925,13 +1688,7 @@ function EcranConnexion({ setEcran, setUser }) {
         >
           Mange Chez Moi
         </div>
-        <div
-          style={{
-            fontSize: '13px',
-            color: 'rgba(255,255,255,0.8)',
-            fontWeight: '600',
-          }}
-        >
+        <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
           Repas chez l'habitant en France
         </div>
       </div>
@@ -2138,12 +1895,7 @@ function EcranChat({ setEcran, user }) {
       .channel('messages-global')
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: 'repas_id=is.null',
-        },
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: 'repas_id=is.null' },
         (payload) => {
           setMessages((prev) => [...prev, payload.new])
         },
@@ -2188,14 +1940,7 @@ function EcranChat({ setEcran, user }) {
         >
           ←
         </div>
-        <span
-          style={{
-            fontFamily: 'Pacifico, cursive',
-            fontSize: '18px',
-            color: '#fff',
-            flex: 1,
-          }}
-        >
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff', flex: 1 }}>
           Chat communauté 💬
         </span>
         <div
@@ -2349,26 +2094,13 @@ function EcranNotifications({ setEcran }) {
         >
           ←
         </div>
-        <span
-          style={{
-            fontFamily: 'Pacifico, cursive',
-            fontSize: '18px',
-            color: '#fff',
-          }}
-        >
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
           Notifications 🔔
         </span>
       </div>
       <div style={{ padding: '14px 16px' }}>
         {repas.length === 0 && (
-          <div
-            style={{
-              fontSize: '13px',
-              color: '#aaa',
-              textAlign: 'center',
-              marginTop: '40px',
-            }}
-          >
+          <div style={{ fontSize: '13px', color: '#aaa', textAlign: 'center', marginTop: '40px' }}>
             Aucune notification
           </div>
         )}
@@ -2443,12 +2175,7 @@ function EcranChatRepas({ setEcran, user, repasId }) {
       .channel('messages-repas-' + repasId)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `repas_id=eq.${repasId}`,
-        },
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `repas_id=eq.${repasId}` },
         (payload) => {
           setMessages((prev) => [...prev, payload.new])
         },
@@ -2489,36 +2216,17 @@ function EcranChatRepas({ setEcran, user, repasId }) {
           ←
         </div>
         <div style={{ flex: 1 }}>
-          <span
-            style={{
-              fontFamily: 'Pacifico, cursive',
-              fontSize: '16px',
-              color: '#fff',
-            }}
-          >
+          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '16px', color: '#fff' }}>
             Chat 💬
           </span>
-          <div
-            style={{
-              fontSize: '11px',
-              color: 'rgba(255,255,255,0.8)',
-              fontWeight: '600',
-            }}
-          >
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
             {repas?.titre}
           </div>
         </div>
       </div>
       <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
         {messages.length === 0 && (
-          <div
-            style={{
-              textAlign: 'center',
-              color: '#aaa',
-              fontSize: '13px',
-              marginTop: '40px',
-            }}
-          >
+          <div style={{ textAlign: 'center', color: '#aaa', fontSize: '13px', marginTop: '40px' }}>
             Aucun message — soyez le premier ! 👋
           </div>
         )}
@@ -2625,6 +2333,233 @@ function EcranChatRepas({ setEcran, user, repasId }) {
   )
 }
 
+function EcranCGU({ setEcran }) {
+  return (
+    <div>
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '16px', color: '#fff' }}>
+          CGU
+        </span>
+      </div>
+      <div style={{ padding: '16px', fontSize: '13px', color: '#333', lineHeight: '1.8' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '12px', color: '#222' }}>
+          Conditions Générales d'Utilisation
+        </h2>
+        <p>
+          <strong>Dernière mise à jour :</strong> Avril 2026
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          1. Objet
+        </h3>
+        <p>
+          Mange Chez Moi est une plateforme de mise en relation entre hôtes proposant des repas
+          faits maison et des convives. L'utilisation de l'application implique l'acceptation des
+          présentes CGU.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          2. Inscription
+        </h3>
+        <p>
+          L'accès à l'application nécessite la création d'un compte avec une adresse email valide.
+          L'utilisateur est responsable de la confidentialité de ses identifiants.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          3. Responsabilités
+        </h3>
+        <p>
+          Mange Chez Moi est une plateforme de mise en relation. Elle n'est pas responsable de la
+          qualité des repas, des relations entre utilisateurs, ni des transactions effectuées en
+          dehors de la plateforme.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          4. Comportement
+        </h3>
+        <p>
+          Les utilisateurs s'engagent à respecter les autres membres, à ne pas publier de contenu
+          offensant ou illégal, et à utiliser l'application de bonne foi.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          5. Données personnelles
+        </h3>
+        <p>
+          Les données collectées sont utilisées uniquement dans le cadre du fonctionnement de
+          l'application. Elles ne sont pas revendues à des tiers.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          6. Résiliation
+        </h3>
+        <p>
+          L'utilisateur peut supprimer son compte à tout moment en contactant
+          scorpio13860@hotmail.fr. Mange Chez Moi se réserve le droit de suspendre un compte en cas
+          de non-respect des CGU.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          7. Droit applicable
+        </h3>
+        <p>
+          Les présentes CGU sont soumises au droit français. Tout litige sera soumis aux tribunaux
+          compétents de France.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function EcranMentions({ setEcran }) {
+  return (
+    <div>
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '16px', color: '#fff' }}>
+          Mentions légales
+        </span>
+      </div>
+      <div style={{ padding: '16px', fontSize: '13px', color: '#333', lineHeight: '1.8' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '12px', color: '#222' }}>
+          Mentions Légales
+        </h2>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Éditeur
+        </h3>
+        <p>
+          Romera Romain
+          <br />
+          914 boulevard de la Coopérative
+          <br />
+          13610 Le Puy Sainte Réparade
+          <br />
+          Email : scorpio13860@hotmail.fr
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Hébergement
+        </h3>
+        <p>
+          Vercel Inc.
+          <br />
+          440 N Barranca Ave #4133
+          <br />
+          Covina, CA 91723, États-Unis
+          <br />
+          vercel.com
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Base de données
+        </h3>
+        <p>Supabase Inc. — supabase.com</p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Propriété intellectuelle
+        </h3>
+        <p>
+          L'ensemble du contenu de l'application Mange Chez Moi est protégé par le droit d'auteur.
+          Toute reproduction est interdite sans autorisation préalable.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function EcranConfidentialite({ setEcran }) {
+  return (
+    <div>
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '16px', color: '#fff' }}>
+          Confidentialité
+        </span>
+      </div>
+      <div style={{ padding: '16px', fontSize: '13px', color: '#333', lineHeight: '1.8' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '12px', color: '#222' }}>
+          Politique de Confidentialité
+        </h2>
+        <p>
+          <strong>Dernière mise à jour :</strong> Avril 2026
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Données collectées
+        </h3>
+        <p>
+          Mange Chez Moi collecte les données suivantes : adresse email, prénom, ville, photo de
+          profil, repas créés, réservations effectuées, messages envoyés.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Utilisation des données
+        </h3>
+        <p>
+          Ces données sont utilisées uniquement pour le fonctionnement de l'application : affichage
+          du profil, gestion des réservations, classement communautaire.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Partage des données
+        </h3>
+        <p>
+          Vos données ne sont jamais vendues ni partagées avec des tiers à des fins commerciales.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Cookies
+        </h3>
+        <p>
+          L'application utilise des cookies de session pour maintenir votre connexion. Aucun cookie
+          publicitaire n'est utilisé.
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Vos droits (RGPD)
+        </h3>
+        <p>
+          Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression
+          de vos données. Pour exercer ces droits, contactez : scorpio13860@hotmail.fr
+        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
+          Conservation
+        </h3>
+        <p>
+          Les données sont conservées tant que votre compte est actif. En cas de suppression, elles
+          sont effacées dans un délai de 30 jours.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
@@ -2664,6 +2599,9 @@ function App() {
       {ecran === 'chatrepas' && (
         <EcranChatRepas setEcran={setEcran} user={user} repasId={repasChat} />
       )}
+      {ecran === 'cgu' && <EcranCGU setEcran={setEcran} />}
+      {ecran === 'mentions' && <EcranMentions setEcran={setEcran} />}
+      {ecran === 'confidentialite' && <EcranConfidentialite setEcran={setEcran} />}
       <Nav ecran={ecran} setEcran={setEcran} />
     </div>
   )
