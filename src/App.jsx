@@ -690,19 +690,17 @@ function EcranCreerRepas({ setEcran }) {
       setMessage('Remplis le titre et la date !')
       return
     }
-    const { error } = await supabase
-      .from('repas')
-      .insert({
-        titre,
-        emoji,
-        date,
-        places,
-        prix,
-        couleur: '#FFECD0',
-        badge: places + ' places dispo',
-        photo_url: photoUrl,
-        ville,
-      })
+    const { error } = await supabase.from('repas').insert({
+      titre,
+      emoji,
+      date,
+      places,
+      prix,
+      couleur: '#FFECD0',
+      badge: places + ' places dispo',
+      photo_url: photoUrl,
+      ville,
+    })
     if (error) {
       setMessage('Erreur : ' + error.message)
     } else {
@@ -1502,6 +1500,29 @@ function EcranProfil({ setEcran, setUser, user }) {
             }}
           >
             Déconnexion
+          </div>
+          <div
+            onClick={async () => {
+              const confirmation = window.prompt('Pour supprimer ton compte, tape SUPPRIMER')
+              if (confirmation === 'SUPPRIMER') {
+                await supabase.rpc('delete_user')
+                await supabase.auth.signOut()
+                setUser(null)
+              } else if (confirmation !== null) {
+                window.alert('Texte incorrect, suppression annulée.')
+              }
+            }}
+            style={{
+              background: 'rgba(255,0,0,0.2)',
+              borderRadius: '20px',
+              padding: '5px 12px',
+              fontSize: '12px',
+              fontWeight: '700',
+              color: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            🗑️ Supprimer
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
