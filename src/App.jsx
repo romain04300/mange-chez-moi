@@ -2287,7 +2287,9 @@ function EcranNotifications({ setEcran }) {
               borderRadius: '14px',
               border: '1.5px solid #FFE5D0',
               marginBottom: '10px',
+              cursor: 'pointer',
             }}
+            onClick={() => setEcran('chercher')}
           >
             <div
               style={{
@@ -2302,7 +2304,19 @@ function EcranNotifications({ setEcran }) {
                 flexShrink: 0,
               }}
             >
-              {r.emoji}
+              {r.photo_url ? (
+                <img
+                  src={r.photo_url}
+                  style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    objectFit: 'cover',
+                  }}
+                />
+              ) : (
+                r.emoji
+              )}
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
@@ -2313,13 +2327,21 @@ function EcranNotifications({ setEcran }) {
                 📍 {r.ville || 'France'} · {r.date}
               </div>
             </div>
+            <div
+              onClick={(e) => {
+                e.stopPropagation()
+                setRepas((prev) => prev.filter((rep) => rep.id !== r.id))
+              }}
+              style={{ fontSize: '16px', cursor: 'pointer', opacity: '0.5', padding: '4px' }}
+            >
+              ✕
+            </div>
           </div>
         ))}
       </div>
     </div>
   )
 }
-
 function EcranChatRepas({ setEcran, user, repasId }) {
   const [messages, setMessages] = useState([])
   const [texte, setTexte] = useState('')
