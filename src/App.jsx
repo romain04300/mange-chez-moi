@@ -151,14 +151,18 @@ function EcranAccueil({ setEcran, user }) {
       const { count: nbMessages } = await supabase
         .from('messages')
         .select('*', { count: 'exact', head: true })
-      setStats({ repas: nbRepas || 0, membres: nbMembres || 0, messages: nbMessages || 0 })
+      setStats({
+        repas: nbRepas || 0,
+        membres: nbMembres || 0,
+        messages: nbMessages || 0,
+      })
     }
     chargerDonnees()
   }, [])
 
   return (
     <div>
-      <div style={{ background: '#FF6B35', padding: '10px 16px 16px', overflow: 'visible' }}>
+      <div style={{ background: '#FF6B35', padding: '10px 16px 16px' }}>
         <div
           style={{
             display: 'flex',
@@ -167,7 +171,13 @@ function EcranAccueil({ setEcran, user }) {
             marginBottom: '12px',
           }}
         >
-          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '22px', color: '#fff' }}>
+          <span
+            style={{
+              fontFamily: 'Pacifico, cursive',
+              fontSize: '22px',
+              color: '#fff',
+            }}
+          >
             Mange Chez Moi
           </span>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -219,10 +229,23 @@ function EcranAccueil({ setEcran, user }) {
             marginBottom: '12px',
           }}
         >
-          <div style={{ fontSize: '14px', fontWeight: '800', color: '#fff', marginBottom: '2px' }}>
+          <div
+            style={{
+              fontSize: '14px',
+              fontWeight: '800',
+              color: '#fff',
+              marginBottom: '2px',
+            }}
+          >
             Bonjour {profil?.prenom || 'toi'} 👋
           </div>
-          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)', fontWeight: '600' }}>
+          <div
+            style={{
+              fontSize: '12px',
+              color: 'rgba(255,255,255,0.85)',
+              fontWeight: '600',
+            }}
+          >
             Que manges-tu ce soir ?
           </div>
         </div>
@@ -237,7 +260,13 @@ function EcranAccueil({ setEcran, user }) {
             }}
           >
             <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>{stats.repas}</div>
-            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+            <div
+              style={{
+                fontSize: '9px',
+                color: 'rgba(255,255,255,0.8)',
+                fontWeight: '600',
+              }}
+            >
               Repas
             </div>
           </div>
@@ -253,7 +282,13 @@ function EcranAccueil({ setEcran, user }) {
             <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>
               {stats.membres}
             </div>
-            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+            <div
+              style={{
+                fontSize: '9px',
+                color: 'rgba(255,255,255,0.8)',
+                fontWeight: '600',
+              }}
+            >
               Membres
             </div>
           </div>
@@ -267,18 +302,35 @@ function EcranAccueil({ setEcran, user }) {
             }}
           >
             <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>🇫🇷</div>
-            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+            <div
+              style={{
+                fontSize: '9px',
+                color: 'rgba(255,255,255,0.8)',
+                fontWeight: '600',
+              }}
+            >
               France
             </div>
           </div>
         </div>
       </div>
       <div style={{ background: '#fff', padding: '14px 16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
+          }}
+        >
           <span style={{ fontSize: '14px', fontWeight: '800' }}>Repas à venir</span>
           <span
             onClick={() => setEcran('chercher')}
-            style={{ fontSize: '11px', fontWeight: '700', color: '#FF6B35', cursor: 'pointer' }}
+            style={{
+              fontSize: '11px',
+              fontWeight: '700',
+              color: '#FF6B35',
+              cursor: 'pointer',
+            }}
           >
             Tout voir
           </span>
@@ -320,7 +372,13 @@ function EcranAccueil({ setEcran, user }) {
             <div style={{ fontSize: '13px', fontWeight: '800', color: '#fff' }}>
               Organise un repas chez toi
             </div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+            <div
+              style={{
+                fontSize: '11px',
+                color: 'rgba(255,255,255,0.8)',
+                fontWeight: '600',
+              }}
+            >
               3-4 invités · tu fixes le prix
             </div>
           </div>
@@ -357,11 +415,22 @@ function EcranAccueil({ setEcran, user }) {
               </div>
             )}
             <div style={{ padding: '10px 12px' }}>
-              <div style={{ fontSize: '13px', fontWeight: '800', marginBottom: '4px' }}>
+              <div
+                style={{
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  marginBottom: '4px',
+                }}
+              >
                 {r.titre}
               </div>
               <div
-                style={{ fontSize: '11px', color: '#888', fontWeight: '600', marginBottom: '6px' }}
+                style={{
+                  fontSize: '11px',
+                  color: '#888',
+                  fontWeight: '600',
+                  marginBottom: '6px',
+                }}
               >
                 {r.ville && <span>📍{r.ville} · </span>}
                 {r.date} · {r.prix} €/pers
@@ -403,7 +472,7 @@ function EcranAccueil({ setEcran, user }) {
   )
 }
 
-function EcranChercher({ setEcran, user, setRepasChat }) {
+function EcranChercher({ setEcran, user, onChatRepas }) {
   const [repas, setRepas] = useState([])
   const [mesReservations, setMesReservations] = useState([])
   const [erreur, setErreur] = useState('')
@@ -563,25 +632,11 @@ function EcranChercher({ setEcran, user, setRepasChat }) {
                   {r.date} · {r.prix} €/pers
                 </div>
                 <div
-                  onClick={() => {
-                    setRepasChat(r.id)
-                    setTimeout(() => setEcran('chatrepas'), 50)
-                  }}
                   style={{
-                    background: '#EDE0FF',
-                    color: '#6B35FF',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    padding: '6px 14px',
-                    borderRadius: '20px',
-                    cursor: 'pointer',
-                    marginRight: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                   }}
-                >
-                  💬
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                 >
                   <div
                     style={{
@@ -594,6 +649,36 @@ function EcranChercher({ setEcran, user, setRepasChat }) {
                     }}
                   >
                     {r.badge}
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <div
+                      onClick={() => onChatRepas(r.id)}
+                      style={{
+                        background: '#EDE0FF',
+                        color: '#6B35FF',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        padding: '6px 14px',
+                        borderRadius: '20px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      💬
+                    </div>
+                    <div
+                      onClick={() => !mesReservations.includes(r.id) && reserver(r.id)}
+                      style={{
+                        background: mesReservations.includes(r.id) ? '#E0F5E8' : '#FF6B35',
+                        color: mesReservations.includes(r.id) ? '#085041' : '#fff',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        padding: '6px 14px',
+                        borderRadius: '20px',
+                        cursor: mesReservations.includes(r.id) ? 'default' : 'pointer',
+                      }}
+                    >
+                      {mesReservations.includes(r.id) ? 'Réservé ✓' : 'Réserver'}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -664,7 +749,13 @@ function EcranCreerRepas({ setEcran }) {
         >
           ←
         </div>
-        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+        <span
+          style={{
+            fontFamily: 'Pacifico, cursive',
+            fontSize: '18px',
+            color: '#fff',
+          }}
+        >
           Nouveau repas
         </span>
       </div>
@@ -945,7 +1036,13 @@ function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
   return (
     <div>
       <div style={{ background: '#FF6B35', padding: '10px 16px 14px' }}>
-        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+        <span
+          style={{
+            fontFamily: 'Pacifico, cursive',
+            fontSize: '18px',
+            color: '#fff',
+          }}
+        >
           Mes repas
         </span>
       </div>
@@ -968,13 +1065,26 @@ function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
             <div style={{ fontSize: '13px', fontWeight: '800', color: '#fff' }}>
               Organiser un nouveau repas
             </div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+            <div
+              style={{
+                fontSize: '11px',
+                color: 'rgba(255,255,255,0.8)',
+                fontWeight: '600',
+              }}
+            >
               3-4 invités · tu fixes le prix
             </div>
           </div>
           <span style={{ fontSize: '18px', color: 'rgba(255,255,255,0.7)' }}>›</span>
         </div>
-        <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
+        <div
+          style={{
+            fontSize: '13px',
+            fontWeight: '800',
+            color: '#222',
+            marginBottom: '12px',
+          }}
+        >
           Mes réservations ({reservations.length})
         </div>
         {reservations.map((r) => (
@@ -1019,7 +1129,14 @@ function EcranMesRepas({ setEcran, user, setRepasSelectionne }) {
               <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
                 {r.repas?.titre}
               </div>
-              <div style={{ fontSize: '11px', color: '#aaa', fontWeight: '600', marginTop: '2px' }}>
+              <div
+                style={{
+                  fontSize: '11px',
+                  color: '#aaa',
+                  fontWeight: '600',
+                  marginTop: '2px',
+                }}
+              >
                 {r.repas?.ville && <span>📍{r.repas.ville} · </span>}
                 {r.repas?.date} · {r.repas?.prix} €/pers
               </div>
@@ -1086,13 +1203,26 @@ function EcranNotation({ setEcran, user, repasId }) {
         >
           ←
         </div>
-        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+        <span
+          style={{
+            fontFamily: 'Pacifico, cursive',
+            fontSize: '18px',
+            color: '#fff',
+          }}
+        >
           Noter ce repas
         </span>
       </div>
       <div style={{ padding: '20px 16px' }}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ fontSize: '14px', fontWeight: '800', color: '#222', marginBottom: '16px' }}>
+          <div
+            style={{
+              fontSize: '14px',
+              fontWeight: '800',
+              color: '#222',
+              marginBottom: '16px',
+            }}
+          >
             Quelle note donnes-tu à ce repas ?
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
@@ -1117,7 +1247,14 @@ function EcranNotation({ setEcran, user, repasId }) {
               </div>
             ))}
           </div>
-          <div style={{ fontSize: '13px', fontWeight: '700', color: '#FF6B35', marginTop: '10px' }}>
+          <div
+            style={{
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#FF6B35',
+              marginTop: '10px',
+            }}
+          >
             {note === 0
               ? 'Clique sur une étoile'
               : note === 1
@@ -1207,18 +1344,29 @@ function EcranClassement({ setEcran }) {
     }
     chargerClassement()
   }, [])
+
   if (membreSelectionne)
     return (
       <div>
         <div style={{ background: '#FF6B35', padding: '10px 16px 24px' }}>
           <div
             onClick={() => setMembreSelectionne(null)}
-            style={{ color: '#fff', fontSize: '18px', cursor: 'pointer', marginBottom: '10px' }}
+            style={{
+              color: '#fff',
+              fontSize: '18px',
+              cursor: 'pointer',
+              marginBottom: '10px',
+            }}
           >
             ←
           </div>
           <div
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '8px',
+            }}
           >
             <div
               style={{
@@ -1238,23 +1386,43 @@ function EcranClassement({ setEcran }) {
             <div style={{ fontSize: '17px', fontWeight: '800', color: '#fff' }}>
               {membreSelectionne.prenom || 'Anonyme'}
             </div>
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+            <div
+              style={{
+                fontSize: '12px',
+                color: 'rgba(255,255,255,0.8)',
+                fontWeight: '600',
+              }}
+            >
               📍 {membreSelectionne.ville || 'France'}
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #FFE5D0' }}>
+        <div
+          style={{
+            display: 'flex',
+            background: '#fff',
+            borderBottom: '1.5px solid #FFE5D0',
+          }}
+        >
           <div style={{ flex: 1, padding: '12px 8px', textAlign: 'center' }}>
             <div style={{ fontSize: '18px', fontWeight: '800', color: '#FF6B35' }}>
               {Math.round(membreSelectionne.total_pts)}
             </div>
-            <div style={{ fontSize: '10px', fontWeight: '700', color: '#aaa', marginTop: '2px' }}>
+            <div
+              style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#aaa',
+                marginTop: '2px',
+              }}
+            >
               Points
             </div>
           </div>
         </div>
       </div>
     )
+
   return (
     <div>
       <div style={{ background: '#FF6B35', padding: '10px 16px 14px' }}>
@@ -1266,7 +1434,13 @@ function EcranClassement({ setEcran }) {
             marginBottom: '12px',
           }}
         >
-          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+          <span
+            style={{
+              fontFamily: 'Pacifico, cursive',
+              fontSize: '18px',
+              color: '#fff',
+            }}
+          >
             Classement
           </span>
           <div
@@ -1291,7 +1465,13 @@ function EcranClassement({ setEcran }) {
             justifyContent: 'space-between',
           }}
         >
-          <span style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.9)' }}>
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: '700',
+              color: 'rgba(255,255,255,0.9)',
+            }}
+          >
             Fin de manche dans
           </span>
           <span style={{ fontSize: '13px', fontWeight: '800', color: '#fff' }}>12 jours</span>
@@ -1342,7 +1522,13 @@ function EcranClassement({ setEcran }) {
               👤
             </div>
             <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => setMembreSelectionne(j)}>
-              <div style={{ fontSize: '13px', fontWeight: '800', color: '#FF6B35' }}>
+              <div
+                style={{
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  color: '#FF6B35',
+                }}
+              >
                 {j.prenom || 'Anonyme'}
               </div>
               <div style={{ fontSize: '10px', color: '#888', fontWeight: '600' }}>
@@ -1400,8 +1586,7 @@ function EcranProfil({ setEcran, setUser, user }) {
       const { data: notes } = await supabase.from('notations').select('*').eq('noteur_id', user.id)
       if (notes && notes.length > 0) {
         setNotations(notes)
-        const moy = notes.reduce((acc, n) => acc + n.note, 0) / notes.length
-        setMoyenne(moy.toFixed(1))
+        setMoyenne((notes.reduce((acc, n) => acc + n.note, 0) / notes.length).toFixed(1))
       }
     }
     chargerProfil()
@@ -1418,7 +1603,13 @@ function EcranProfil({ setEcran, setUser, user }) {
             marginBottom: '16px',
           }}
         >
-          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '17px', color: '#fff' }}>
+          <span
+            style={{
+              fontFamily: 'Pacifico, cursive',
+              fontSize: '17px',
+              color: '#fff',
+            }}
+          >
             Mon profil
           </span>
           <div
@@ -1439,7 +1630,14 @@ function EcranProfil({ setEcran, setUser, user }) {
             Déconnexion
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
           <div style={{ position: 'relative' }}>
             {profil?.photo_url ? (
               <img
@@ -1503,38 +1701,24 @@ function EcranProfil({ setEcran, setUser, user }) {
           <div style={{ fontSize: '17px', fontWeight: '800', color: '#fff' }}>
             {profil?.prenom || user?.email}
           </div>
-          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+          <div
+            style={{
+              fontSize: '12px',
+              color: 'rgba(255,255,255,0.8)',
+              fontWeight: '600',
+            }}
+          >
             📍 {profil?.ville || 'France'}
-          </div>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <div
-              style={{
-                background: '#FFD600',
-                color: '#412402',
-                fontSize: '10px',
-                fontWeight: '700',
-                padding: '3px 10px',
-                borderRadius: '20px',
-              }}
-            >
-              Super hôte
-            </div>
-            <div
-              style={{
-                background: 'rgba(255,255,255,0.25)',
-                color: '#fff',
-                fontSize: '10px',
-                fontWeight: '700',
-                padding: '3px 10px',
-                borderRadius: '20px',
-              }}
-            >
-              Finaliste S1
-            </div>
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #FFE5D0' }}>
+      <div
+        style={{
+          display: 'flex',
+          background: '#fff',
+          borderBottom: '1.5px solid #FFE5D0',
+        }}
+      >
         {[
           ['?', 'Repas'],
           [moyenne || '?', 'Note'],
@@ -1551,14 +1735,28 @@ function EcranProfil({ setEcran, setUser, user }) {
             }}
           >
             <div style={{ fontSize: '18px', fontWeight: '800', color: '#FF6B35' }}>{val}</div>
-            <div style={{ fontSize: '10px', fontWeight: '700', color: '#aaa', marginTop: '2px' }}>
+            <div
+              style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#aaa',
+                marginTop: '2px',
+              }}
+            >
               {label}
             </div>
           </div>
         ))}
       </div>
       <div style={{ padding: '14px 16px' }}>
-        <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
+        <div
+          style={{
+            fontSize: '13px',
+            fontWeight: '800',
+            color: '#222',
+            marginBottom: '12px',
+          }}
+        >
           Mes derniers avis donnés
         </div>
         {notations.length === 0 && (
@@ -1576,18 +1774,37 @@ function EcranProfil({ setEcran, setUser, user }) {
               marginBottom: '10px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '6px',
+              }}
+            >
               <div style={{ color: '#FFD600', fontSize: '14px' }}>
                 {'★'.repeat(n.note)}
                 {'☆'.repeat(5 - n.note)}
               </div>
               <div
-                style={{ marginLeft: 'auto', fontSize: '10px', color: '#aaa', fontWeight: '600' }}
+                style={{
+                  marginLeft: 'auto',
+                  fontSize: '10px',
+                  color: '#aaa',
+                  fontWeight: '600',
+                }}
               >
                 {new Date(n.created_at).toLocaleDateString('fr-FR')}
               </div>
             </div>
-            <div style={{ fontSize: '12px', color: '#555', fontWeight: '600', lineHeight: '1.5' }}>
+            <div
+              style={{
+                fontSize: '12px',
+                color: '#555',
+                fontWeight: '600',
+                lineHeight: '1.5',
+              }}
+            >
               {n.commentaire || 'Pas de commentaire'}
             </div>
           </div>
@@ -1608,7 +1825,10 @@ function EcranConnexion({ setEcran, setUser }) {
   async function handleSubmit() {
     setErreur('')
     if (mode === 'inscription') {
-      const { data, error } = await supabase.auth.signUp({ email, password: motdepasse })
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: motdepasse,
+      })
       if (error) {
         setErreur(error.message)
       } else {
@@ -1638,7 +1858,13 @@ function EcranConnexion({ setEcran, setUser }) {
         flexDirection: 'column',
       }}
     >
-      <div style={{ background: '#FF6B35', padding: '40px 24px 30px', textAlign: 'center' }}>
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '40px 24px 30px',
+          textAlign: 'center',
+        }}
+      >
         <div
           style={{
             fontFamily: 'Pacifico, cursive',
@@ -1649,7 +1875,13 @@ function EcranConnexion({ setEcran, setUser }) {
         >
           Mange Chez Moi
         </div>
-        <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+        <div
+          style={{
+            fontSize: '13px',
+            color: 'rgba(255,255,255,0.8)',
+            fontWeight: '600',
+          }}
+        >
           Repas chez l'habitant en France
         </div>
       </div>
@@ -1705,7 +1937,6 @@ function EcranConnexion({ setEcran, setUser }) {
                 color: '#888',
                 marginBottom: '6px',
                 textTransform: 'uppercase',
-                letterSpacing: '0.4px',
               }}
             >
               Prénom
@@ -1735,7 +1966,6 @@ function EcranConnexion({ setEcran, setUser }) {
               color: '#888',
               marginBottom: '6px',
               textTransform: 'uppercase',
-              letterSpacing: '0.4px',
             }}
           >
             Email
@@ -1764,7 +1994,6 @@ function EcranConnexion({ setEcran, setUser }) {
               color: '#888',
               marginBottom: '6px',
               textTransform: 'uppercase',
-              letterSpacing: '0.4px',
             }}
           >
             Mot de passe
@@ -1836,6 +2065,7 @@ function EcranConnexion({ setEcran, setUser }) {
     </div>
   )
 }
+
 function EcranChat({ setEcran, user }) {
   const [messages, setMessages] = useState([])
   const [texte, setTexte] = useState('')
@@ -1849,42 +2079,44 @@ function EcranChat({ setEcran, user }) {
       const { data: m } = await supabase
         .from('messages')
         .select('*')
+        .is('repas_id', null)
         .order('created_at', { ascending: true })
       if (m) setMessages(m)
     }
     charger()
-
     const canal = supabase
-      .channel('messages')
+      .channel('messages-global')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: 'repas_id=is.null',
+        },
         (payload) => {
           setMessages((prev) => [...prev, payload.new])
         },
       )
       .subscribe()
-
     return () => {
       supabase.removeChannel(canal)
     }
   }, [])
 
   useEffect(() => {
-    if (messagesRef.current) {
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight
-    }
+    if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight
   }, [messages])
 
   async function envoyer() {
     if (!texte.trim()) return
-    await supabase.from('messages').insert({ user_id: user.id, contenu: texte })
+    await supabase.from('messages').insert({ user_id: user.id, contenu: texte, repas_id: null })
     setTexte('')
   }
 
   async function vider() {
     if (window.confirm('Effacer tous les messages ?')) {
-      await supabase.from('messages').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+      await supabase.from('messages').delete().is('repas_id', null)
       setMessages([])
     }
   }
@@ -1906,7 +2138,14 @@ function EcranChat({ setEcran, user }) {
         >
           ←
         </div>
-        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff', flex: 1 }}>
+        <span
+          style={{
+            fontFamily: 'Pacifico, cursive',
+            fontSize: '18px',
+            color: '#fff',
+            flex: 1,
+          }}
+        >
           Chat communauté 💬
         </span>
         <div
@@ -2027,6 +2266,7 @@ function EcranChat({ setEcran, user }) {
     </div>
   )
 }
+
 function EcranNotifications({ setEcran }) {
   const [repas, setRepas] = useState([])
 
@@ -2059,13 +2299,26 @@ function EcranNotifications({ setEcran }) {
         >
           ←
         </div>
-        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+        <span
+          style={{
+            fontFamily: 'Pacifico, cursive',
+            fontSize: '18px',
+            color: '#fff',
+          }}
+        >
           Notifications 🔔
         </span>
       </div>
       <div style={{ padding: '14px 16px' }}>
         {repas.length === 0 && (
-          <div style={{ fontSize: '13px', color: '#aaa', textAlign: 'center', marginTop: '40px' }}>
+          <div
+            style={{
+              fontSize: '13px',
+              color: '#aaa',
+              textAlign: 'center',
+              marginTop: '40px',
+            }}
+          >
             Aucune notification
           </div>
         )}
@@ -2113,6 +2366,7 @@ function EcranNotifications({ setEcran }) {
     </div>
   )
 }
+
 function EcranChatRepas({ setEcran, user, repasId }) {
   const [messages, setMessages] = useState([])
   const [texte, setTexte] = useState('')
@@ -2121,6 +2375,7 @@ function EcranChatRepas({ setEcran, user, repasId }) {
   const messagesRef = useRef(null)
 
   useEffect(() => {
+    if (!repasId) return
     async function charger() {
       const { data: p } = await supabase.from('profils').select('*').eq('id', user.id).single()
       setProfil(p)
@@ -2134,27 +2389,28 @@ function EcranChatRepas({ setEcran, user, repasId }) {
       if (m) setMessages(m)
     }
     charger()
-
     const canal = supabase
       .channel('messages-repas-' + repasId)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `repas_id=eq.${repasId}` },
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `repas_id=eq.${repasId}`,
+        },
         (payload) => {
           setMessages((prev) => [...prev, payload.new])
         },
       )
       .subscribe()
-
     return () => {
       supabase.removeChannel(canal)
     }
-  }, [])
+  }, [repasId])
 
   useEffect(() => {
-    if (messagesRef.current) {
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight
-    }
+    if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight
   }, [messages])
 
   async function envoyer() {
@@ -2162,6 +2418,8 @@ function EcranChatRepas({ setEcran, user, repasId }) {
     await supabase.from('messages').insert({ user_id: user.id, contenu: texte, repas_id: repasId })
     setTexte('')
   }
+
+  if (!repasId) return null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -2181,17 +2439,36 @@ function EcranChatRepas({ setEcran, user, repasId }) {
           ←
         </div>
         <div style={{ flex: 1 }}>
-          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '16px', color: '#fff' }}>
+          <span
+            style={{
+              fontFamily: 'Pacifico, cursive',
+              fontSize: '16px',
+              color: '#fff',
+            }}
+          >
             Chat 💬
           </span>
-          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+          <div
+            style={{
+              fontSize: '11px',
+              color: 'rgba(255,255,255,0.8)',
+              fontWeight: '600',
+            }}
+          >
             {repas?.titre}
           </div>
         </div>
       </div>
       <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
         {messages.length === 0 && (
-          <div style={{ textAlign: 'center', color: '#aaa', fontSize: '13px', marginTop: '40px' }}>
+          <div
+            style={{
+              textAlign: 'center',
+              color: '#aaa',
+              fontSize: '13px',
+              marginTop: '40px',
+            }}
+          >
             Aucun message — soyez le premier ! 👋
           </div>
         )}
@@ -2297,6 +2574,7 @@ function EcranChatRepas({ setEcran, user, repasId }) {
     </div>
   )
 }
+
 function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
@@ -2309,8 +2587,11 @@ function App() {
     })
   }, [])
 
-  if (!user) {
-    return <EcranConnexion setEcran={setEcran} setUser={setUser} />
+  if (!user) return <EcranConnexion setEcran={setEcran} setUser={setUser} />
+
+  function ouvrirChatRepas(id) {
+    setRepasChat(id)
+    setEcran('chatrepas')
   }
 
   return (
@@ -2318,7 +2599,7 @@ function App() {
       {ecran === 'notifications' && <EcranNotifications setEcran={setEcran} />}
       {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} user={user} />}
       {ecran === 'chercher' && (
-        <EcranChercher setEcran={setEcran} user={user} setRepasChat={setRepasChat} />
+        <EcranChercher setEcran={setEcran} user={user} onChatRepas={ouvrirChatRepas} />
       )}
       {ecran === 'mesrepas' && (
         <EcranMesRepas setEcran={setEcran} user={user} setRepasSelectionne={setRepasSelectionne} />
