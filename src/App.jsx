@@ -467,6 +467,56 @@ function EcranAccueil({ setEcran, user }) {
             </div>
           </div>
         ))}
+        <div
+          style={{
+            padding: '16px',
+            textAlign: 'center',
+            borderTop: '1px solid #FFE5D0',
+            marginTop: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <span
+              onClick={() => setEcran('legal')}
+              style={{
+                fontSize: '11px',
+                color: '#aaa',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              CGU
+            </span>
+            <span
+              onClick={() => setEcran('legal')}
+              style={{
+                fontSize: '11px',
+                color: '#aaa',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              Mentions légales
+            </span>
+            <span
+              onClick={() => setEcran('legal')}
+              style={{
+                fontSize: '11px',
+                color: '#aaa',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              Confidentialité
+            </span>
+          </div>
+          <div style={{ fontSize: '10px', color: '#ccc', marginTop: '6px' }}>
+            © 2026 Mange Chez Moi
+          </div>
+        </div>
       </div>
     </div>
   )
