@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase'
 
+const ADMIN_ID = 'd89917e9-93b3-40a8-aca2-54627992354b'
+
 async function uploadPhoto(file) {
   const formData = new FormData()
   formData.append('file', file)
@@ -11,6 +13,159 @@ async function uploadPhoto(file) {
   )
   const data = await res.json()
   return data.secure_url
+}
+
+function MenuMessage({ message, user, onFermer, onSupprimer, onModifier }) {
+  const [modifier, setModifier] = useState(false)
+  const [nouveau, setNouveau] = useState(message.contenu)
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '0',
+        left: '0',
+        right: '0',
+        background: '#fff',
+        borderRadius: '20px 20px 0 0',
+        padding: '16px',
+        zIndex: 100,
+        boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
+      }}
+    >
+      <div
+        style={{
+          fontSize: '13px',
+          color: '#888',
+          fontWeight: '600',
+          marginBottom: '12px',
+          textAlign: 'center',
+        }}
+      >
+        Mon message
+      </div>
+      <div
+        style={{
+          background: '#FFF8F0',
+          borderRadius: '12px',
+          padding: '10px 12px',
+          fontSize: '13px',
+          color: '#222',
+          fontWeight: '600',
+          marginBottom: '12px',
+        }}
+      >
+        {message.contenu}
+      </div>
+      {modifier ? (
+        <div>
+          <input
+            value={nouveau}
+            onChange={(e) => setNouveau(e.target.value)}
+            style={{
+              width: '100%',
+              background: '#FFF8F0',
+              border: '1.5px solid #FFE5D0',
+              borderRadius: '12px',
+              padding: '10px 12px',
+              fontFamily: 'Nunito, sans-serif',
+              fontSize: '13px',
+              outline: 'none',
+              marginBottom: '8px',
+            }}
+          />
+          <div
+            onClick={() => {
+              if (nouveau.trim()) {
+                onModifier(message.id, nouveau)
+                onFermer()
+              }
+            }}
+            style={{
+              background: '#4CAF50',
+              borderRadius: '12px',
+              padding: '12px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#fff',
+              cursor: 'pointer',
+              marginBottom: '8px',
+            }}
+          >
+            ✅ Valider
+          </div>
+          <div
+            onClick={() => setModifier(false)}
+            style={{
+              background: '#f5f5f5',
+              borderRadius: '12px',
+              padding: '10px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#888',
+              cursor: 'pointer',
+            }}
+          >
+            Annuler
+          </div>
+        </div>
+      ) : (
+        <>
+          <div
+            onClick={() => setModifier(true)}
+            style={{
+              background: '#FF6B35',
+              borderRadius: '12px',
+              padding: '12px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#fff',
+              cursor: 'pointer',
+              marginBottom: '8px',
+            }}
+          >
+            ✏️ Modifier
+          </div>
+          <div
+            onClick={() => {
+              onSupprimer(message.id)
+              onFermer()
+            }}
+            style={{
+              background: '#FF3B30',
+              borderRadius: '12px',
+              padding: '12px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#fff',
+              cursor: 'pointer',
+              marginBottom: '8px',
+            }}
+          >
+            🗑️ Supprimer
+          </div>
+          <div
+            onClick={onFermer}
+            style={{
+              background: '#f5f5f5',
+              borderRadius: '12px',
+              padding: '12px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#888',
+              cursor: 'pointer',
+            }}
+          >
+            Annuler
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 function CarteRepas({ emoji, titre, date, couleur, badge, couleurBadge, photoUrl }) {
@@ -119,6 +274,112 @@ function Nav({ ecran, setEcran }) {
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+function EcranMembers({ setEcran, user, onMessagePrive }) {
+  const [membres, setMembres] = useState([])
+
+  useEffect(() => {
+    async function charger() {
+      const { data } = await supabase.from('profils').select('*').order('prenom')
+      if (data) setMembres(data)
+    }
+    charger()
+  }, [])
+
+  return (
+    <div>
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#fff' }}>
+          Membres 👥
+        </span>
+      </div>
+      <div style={{ padding: '14px 16px' }}>
+        <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
+          {membres.length} membres inscrits
+        </div>
+        {membres.map((m) => (
+          <div
+            key={m.id}
+            style={{
+              background: '#fff',
+              borderRadius: '14px',
+              border: '1.5px solid #FFE5D0',
+              padding: '12px',
+              marginBottom: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <div
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '50%',
+                background: '#FFE5D0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '22px',
+                flexShrink: 0,
+                overflow: 'hidden',
+              }}
+            >
+              {m.photo_url ? (
+                <img
+                  src={m.photo_url}
+                  style={{ width: '44px', height: '44px', objectFit: 'cover' }}
+                />
+              ) : (
+                '👤'
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
+                {m.prenom || 'Anonyme'}
+              </div>
+              <div style={{ fontSize: '11px', color: '#aaa', fontWeight: '600' }}>
+                📍 {m.ville || 'France'}
+              </div>
+            </div>
+            {m.id !== user.id && (
+              <div
+                onClick={() => {
+                  onMessagePrive(m.id)
+                }}
+                style={{
+                  background: '#EDE0FF',
+                  color: '#6B35FF',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  cursor: 'pointer',
+                }}
+              >
+                ✉️ Message
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -242,19 +503,21 @@ function EcranAccueil({ setEcran, user }) {
             </div>
           </div>
           <div
+            onClick={() => setEcran('membres')}
             style={{
               flex: 1,
               background: 'rgba(255,255,255,0.15)',
               borderRadius: '12px',
               padding: '8px',
               textAlign: 'center',
+              cursor: 'pointer',
             }}
           >
             <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff' }}>
               {stats.membres}
             </div>
             <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
-              Membres
+              Membres 👥
             </div>
           </div>
           <div
@@ -1258,7 +1521,7 @@ function EcranNotation({ setEcran, user, repasId }) {
   )
 }
 
-function EcranClassement({ setEcran }) {
+function EcranClassement({ setEcran, onMessagePrive }) {
   const [joueurs, setJoueurs] = useState([])
   const [membreSelectionne, setMembreSelectionne] = useState(null)
 
@@ -1314,6 +1577,26 @@ function EcranClassement({ setEcran }) {
             <div style={{ fontSize: '10px', fontWeight: '700', color: '#aaa', marginTop: '2px' }}>
               Points
             </div>
+          </div>
+        </div>
+        <div style={{ padding: '16px' }}>
+          <div
+            onClick={() => {
+              onMessagePrive(membreSelectionne.id)
+              setMembreSelectionne(null)
+            }}
+            style={{
+              background: '#FF6B35',
+              borderRadius: '14px',
+              padding: '14px',
+              textAlign: 'center',
+              fontSize: '14px',
+              fontWeight: '800',
+              color: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            ✉️ Envoyer un message privé
           </div>
         </div>
       </div>
@@ -1484,62 +1767,63 @@ function EcranProfil({ setEcran, setUser, user }) {
           <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '17px', color: '#fff' }}>
             Mon profil
           </span>
-          {user.id === 'd89917e9-93b3-40a8-aca2-54627992354b' && (
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {user.id === ADMIN_ID && (
+              <div
+                onClick={() => setEcran('admin')}
+                style={{
+                  background: 'rgba(255,214,0,0.3)',
+                  borderRadius: '20px',
+                  padding: '5px 12px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                🔧 Admin
+              </div>
+            )}
             <div
-              onClick={() => setEcran('admin')}
+              onClick={async () => {
+                await supabase.auth.signOut()
+                setUser(null)
+              }}
               style={{
-                background: 'rgba(255,214,0,0.3)',
+                background: 'rgba(255,255,255,0.25)',
                 borderRadius: '20px',
                 padding: '5px 12px',
                 fontSize: '12px',
                 fontWeight: '700',
                 color: '#fff',
                 cursor: 'pointer',
-                marginRight: '6px',
               }}
             >
-              🔧 Admin
+              Déconnexion
             </div>
-          )}
-          <div
-            onClick={async () => {
-              await supabase.auth.signOut()
-              setUser(null)
-            }}
-            style={{
-              background: 'rgba(255,255,255,0.25)',
-              borderRadius: '20px',
-              padding: '5px 12px',
-              fontSize: '12px',
-              fontWeight: '700',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
-          >
-            Déconnexion
-          </div>
-          <div
-            onClick={async () => {
-              const confirmation = window.prompt('Pour supprimer ton compte, tape SUPPRIMER')
-              if (confirmation === 'SUPPRIMER') {
-                await supabase.rpc('delete_user')
-                await supabase.auth.signOut()
-                setUser(null)
-              } else if (confirmation !== null) {
-                window.alert('Texte incorrect, suppression annulée.')
-              }
-            }}
-            style={{
-              background: 'rgba(255,0,0,0.2)',
-              borderRadius: '20px',
-              padding: '5px 12px',
-              fontSize: '12px',
-              fontWeight: '700',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
-          >
-            🗑️ Supprimer
+            <div
+              onClick={async () => {
+                const confirmation = window.prompt('Pour supprimer ton compte, tape SUPPRIMER')
+                if (confirmation === 'SUPPRIMER') {
+                  await supabase.rpc('delete_user')
+                  await supabase.auth.signOut()
+                  setUser(null)
+                } else if (confirmation !== null) {
+                  window.alert('Texte incorrect, suppression annulée.')
+                }
+              }}
+              style={{
+                background: 'rgba(255,0,0,0.2)',
+                borderRadius: '20px',
+                padding: '5px 12px',
+                fontSize: '12px',
+                fontWeight: '700',
+                color: '#fff',
+                cursor: 'pointer',
+              }}
+            >
+              🗑️
+            </div>
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
@@ -1915,8 +2199,8 @@ function EcranChat({ setEcran, user }) {
   const [messages, setMessages] = useState([])
   const [texte, setTexte] = useState('')
   const [profil, setProfil] = useState(null)
-  const messagesRef = useRef(null)
   const [messageSelectionne, setMessageSelectionne] = useState(null)
+  const messagesRef = useRef(null)
 
   useEffect(() => {
     async function charger() {
@@ -1931,14 +2215,26 @@ function EcranChat({ setEcran, user }) {
     }
     charger()
     const canal = supabase
-      .channel('messages-global-' + Date.now())
+      .channel('chat-global-' + Math.random())
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
-          if (!payload.new.repas_id) {
-            setMessages((prev) => [...prev, payload.new])
-          }
+          if (!payload.new.repas_id) setMessages((prev) => [...prev, payload.new])
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'messages' },
+        (payload) => {
+          setMessages((prev) => prev.filter((m) => m.id !== payload.old.id))
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages' },
+        (payload) => {
+          setMessages((prev) => prev.map((m) => (m.id === payload.new.id ? payload.new : m)))
         },
       )
       .subscribe()
@@ -1957,15 +2253,41 @@ function EcranChat({ setEcran, user }) {
     setTexte('')
   }
 
-  async function vider() {
-    if (window.confirm('Effacer tous les messages ?')) {
-      await supabase.from('messages').delete().is('repas_id', null)
-      setMessages([])
-    }
+  async function supprimerMessage(id) {
+    await supabase.from('messages').delete().eq('id', id)
+    setMessages((prev) => prev.filter((m) => m.id !== id))
+  }
+
+  async function modifierMessage(id, nouveau) {
+    await supabase.from('messages').update({ contenu: nouveau }).eq('id', id)
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, contenu: nouveau } : m)))
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {messageSelectionne && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.3)',
+            zIndex: 99,
+          }}
+          onClick={() => setMessageSelectionne(null)}
+        />
+      )}
+      {messageSelectionne && (
+        <MenuMessage
+          message={messageSelectionne}
+          user={user}
+          onFermer={() => setMessageSelectionne(null)}
+          onSupprimer={supprimerMessage}
+          onModifier={modifierMessage}
+        />
+      )}
       <div
         style={{
           background: '#FF6B35',
@@ -1985,207 +2307,67 @@ function EcranChat({ setEcran, user }) {
           Chat communauté 💬
         </span>
       </div>
-      {messageSelectionne && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '0',
-            left: '0',
-            right: '0',
-            background: '#fff',
-            borderRadius: '20px 20px 0 0',
-            padding: '16px',
-            zIndex: 100,
-            boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
-          }}
-        >
+      <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+        {messages.map((m) => (
           <div
+            key={m.id}
             style={{
-              fontSize: '13px',
-              color: '#888',
-              fontWeight: '600',
               marginBottom: '12px',
-              textAlign: 'center',
+              display: 'flex',
+              flexDirection: m.user_id === user.id ? 'row-reverse' : 'row',
+              gap: '8px',
+              alignItems: 'flex-end',
             }}
           >
-            Mon message
-          </div>
-          <div
-            style={{
-              background: '#FFF8F0',
-              borderRadius: '12px',
-              padding: '10px 12px',
-              fontSize: '13px',
-              color: '#222',
-              fontWeight: '600',
-              marginBottom: '12px',
-            }}
-          >
-            {messageSelectionne.contenu}
-          </div>
-          <div
-            onClick={async () => {
-              const nouveau = messageSelectionne.contenu
-              setMessageSelectionne({ ...messageSelectionne, modifier: true })
-            }}
-            style={{
-              background: '#FF6B35',
-              borderRadius: '12px',
-              padding: '12px',
-              textAlign: 'center',
-              fontSize: '13px',
-              fontWeight: '700',
-              color: '#fff',
-              cursor: 'pointer',
-              marginBottom: '8px',
-            }}
-          >
-            ✏️ Modifier
-          </div>
-          {messageSelectionne.modifier && (
-            <div style={{ marginBottom: '8px' }}>
-              <input
-                defaultValue={messageSelectionne.contenu}
-                id="input-modifier"
-                style={{
-                  width: '100%',
-                  background: '#FFF8F0',
-                  border: '1.5px solid #FFE5D0',
-                  borderRadius: '12px',
-                  padding: '10px 12px',
-                  fontFamily: 'Nunito, sans-serif',
-                  fontSize: '13px',
-                  outline: 'none',
-                }}
-              />
+            <div
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: '#FFE5D0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                flexShrink: 0,
+              }}
+            >
+              👤
+            </div>
+            <div>
               <div
-                onClick={async () => {
-                  const nouveau = document.getElementById('input-modifier').value
-                  if (nouveau && nouveau.trim()) {
-                    await supabase
-                      .from('messages')
-                      .update({ contenu: nouveau })
-                      .eq('id', messageSelectionne.id)
-                    setMessages((prev) =>
-                      prev.map((msg) =>
-                        msg.id === messageSelectionne.id ? { ...msg, contenu: nouveau } : msg,
-                      ),
-                    )
-                    setMessageSelectionne(null)
-                  }
-                }}
                 style={{
-                  background: '#4CAF50',
-                  borderRadius: '12px',
-                  padding: '10px',
-                  textAlign: 'center',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  marginTop: '8px',
+                  fontSize: '10px',
+                  color: '#aaa',
+                  fontWeight: '600',
+                  marginBottom: '2px',
+                  textAlign: m.user_id === user.id ? 'right' : 'left',
                 }}
               >
-                ✅ Valider
+                {m.user_id === user.id ? profil?.prenom || 'Moi' : 'Membre'}
+              </div>
+              <div
+                onClick={() => {
+                  if (m.user_id === user.id) setMessageSelectionne(m)
+                }}
+                style={{
+                  background: m.user_id === user.id ? '#FF6B35' : '#fff',
+                  color: m.user_id === user.id ? '#fff' : '#222',
+                  borderRadius: '14px',
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  border: '1.5px solid #FFE5D0',
+                  maxWidth: '220px',
+                  cursor: m.user_id === user.id ? 'pointer' : 'default',
+                }}
+              >
+                {m.contenu}
               </div>
             </div>
-          )}
-          <div
-            onClick={async () => {
-              await supabase.from('messages').delete().eq('id', messageSelectionne.id)
-              setMessages((prev) => prev.filter((msg) => msg.id !== messageSelectionne.id))
-              setMessageSelectionne(null)
-            }}
-            style={{
-              background: '#FF3B30',
-              borderRadius: '12px',
-              padding: '12px',
-              textAlign: 'center',
-              fontSize: '13px',
-              fontWeight: '700',
-              color: '#fff',
-              cursor: 'pointer',
-              marginBottom: '8px',
-            }}
-          >
-            🗑️ Supprimer
           </div>
-          <div
-            onClick={() => setMessageSelectionne(null)}
-            style={{
-              background: '#f5f5f5',
-              borderRadius: '12px',
-              padding: '12px',
-              textAlign: 'center',
-              fontSize: '13px',
-              fontWeight: '700',
-              color: '#888',
-              cursor: 'pointer',
-            }}
-          >
-            Annuler
-          </div>
-        </div>
-      )}
-      {messages.map((m) => (
-        <div
-          key={m.id}
-          style={{
-            marginBottom: '12px',
-            display: 'flex',
-            flexDirection: m.user_id === user.id ? 'row-reverse' : 'row',
-            gap: '8px',
-            alignItems: 'flex-end',
-          }}
-        >
-          <div
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              background: '#FFE5D0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px',
-              flexShrink: 0,
-            }}
-          >
-            👤
-          </div>
-          <div>
-            <div
-              style={{
-                fontSize: '10px',
-                color: '#aaa',
-                fontWeight: '600',
-                marginBottom: '2px',
-                textAlign: m.user_id === user.id ? 'right' : 'left',
-              }}
-            >
-              {m.user_id === user.id ? profil?.prenom || 'Moi' : 'Membre'}
-            </div>
-            <div
-              onClick={() => {
-                if (m.user_id === user.id) setMessageSelectionne(m)
-              }}
-              style={{
-                background: m.user_id === user.id ? '#FF6B35' : '#fff',
-                color: m.user_id === user.id ? '#fff' : '#222',
-                borderRadius: '14px',
-                padding: '8px 12px',
-                fontSize: '13px',
-                fontWeight: '600',
-                border: '1.5px solid #FFE5D0',
-                maxWidth: '220px',
-                cursor: m.user_id === user.id ? 'pointer' : 'default',
-              }}
-            >
-              {m.contenu}
-            </div>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
       <div
         style={{
           padding: '10px 16px',
@@ -2243,7 +2425,10 @@ function EcranNotifications({ setEcran }) {
         .select('*')
         .order('id', { ascending: false })
         .limit(10)
-      if (data) setRepas(data)
+      if (data) {
+        const supprimees = JSON.parse(localStorage.getItem('notifs_supprimees') || '[]')
+        setRepas(data.filter((r) => !supprimees.includes(r.id)))
+      }
     }
     charger()
   }, [])
@@ -2330,7 +2515,11 @@ function EcranNotifications({ setEcran }) {
             <div
               onClick={(e) => {
                 e.stopPropagation()
-                setRepas((prev) => prev.filter((rep) => rep.id !== r.id))
+                if (window.confirm('Supprimer cette notification ?')) {
+                  const supprimees = JSON.parse(localStorage.getItem('notifs_supprimees') || '[]')
+                  localStorage.setItem('notifs_supprimees', JSON.stringify([...supprimees, r.id]))
+                  setRepas((prev) => prev.filter((rep) => rep.id !== r.id))
+                }
               }}
               style={{ fontSize: '16px', cursor: 'pointer', opacity: '0.5', padding: '4px' }}
             >
@@ -2342,11 +2531,13 @@ function EcranNotifications({ setEcran }) {
     </div>
   )
 }
+
 function EcranChatRepas({ setEcran, user, repasId }) {
   const [messages, setMessages] = useState([])
   const [texte, setTexte] = useState('')
   const [profil, setProfil] = useState(null)
   const [repas, setRepas] = useState(null)
+  const [messageSelectionne, setMessageSelectionne] = useState(null)
   const messagesRef = useRef(null)
 
   useEffect(() => {
@@ -2373,6 +2564,20 @@ function EcranChatRepas({ setEcran, user, repasId }) {
           setMessages((prev) => [...prev, payload.new])
         },
       )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'messages' },
+        (payload) => {
+          setMessages((prev) => prev.filter((m) => m.id !== payload.old.id))
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages' },
+        (payload) => {
+          setMessages((prev) => prev.map((m) => (m.id === payload.new.id ? payload.new : m)))
+        },
+      )
       .subscribe()
     return () => {
       supabase.removeChannel(canal)
@@ -2389,10 +2594,43 @@ function EcranChatRepas({ setEcran, user, repasId }) {
     setTexte('')
   }
 
+  async function supprimerMessage(id) {
+    await supabase.from('messages').delete().eq('id', id)
+    setMessages((prev) => prev.filter((m) => m.id !== id))
+  }
+
+  async function modifierMessage(id, nouveau) {
+    await supabase.from('messages').update({ contenu: nouveau }).eq('id', id)
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, contenu: nouveau } : m)))
+  }
+
   if (!repasId) return null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {messageSelectionne && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.3)',
+            zIndex: 99,
+          }}
+          onClick={() => setMessageSelectionne(null)}
+        />
+      )}
+      {messageSelectionne && (
+        <MenuMessage
+          message={messageSelectionne}
+          user={user}
+          onFermer={() => setMessageSelectionne(null)}
+          onSupprimer={supprimerMessage}
+          onModifier={modifierMessage}
+        />
+      )}
       <div
         style={{
           background: '#FF6B35',
@@ -2462,6 +2700,9 @@ function EcranChatRepas({ setEcran, user, repasId }) {
                 {m.user_id === user.id ? profil?.prenom || 'Moi' : 'Membre'}
               </div>
               <div
+                onClick={() => {
+                  if (m.user_id === user.id) setMessageSelectionne(m)
+                }}
                 style={{
                   background: m.user_id === user.id ? '#FF6B35' : '#fff',
                   color: m.user_id === user.id ? '#fff' : '#222',
@@ -2471,6 +2712,7 @@ function EcranChatRepas({ setEcran, user, repasId }) {
                   fontWeight: '600',
                   border: '1.5px solid #FFE5D0',
                   maxWidth: '220px',
+                  cursor: m.user_id === user.id ? 'pointer' : 'default',
                 }}
               >
                 {m.contenu}
@@ -2494,6 +2736,622 @@ function EcranChatRepas({ setEcran, user, repasId }) {
           onChange={(e) => setTexte(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && envoyer()}
           placeholder="Ton message..."
+          style={{
+            flex: 1,
+            background: '#FFF8F0',
+            border: '1.5px solid #FFE5D0',
+            borderRadius: '20px',
+            padding: '10px 14px',
+            fontFamily: 'Nunito, sans-serif',
+            fontSize: '13px',
+            outline: 'none',
+          }}
+        />
+        <div
+          onClick={envoyer}
+          style={{
+            background: '#FF6B35',
+            borderRadius: '50%',
+            width: '38px',
+            height: '38px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '18px',
+          }}
+        >
+          ➤
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function EcranAdmin({ setEcran }) {
+  const [messages, setMessages] = useState([])
+  const [utilisateurs, setUtilisateurs] = useState([])
+  const [repas, setRepas] = useState([])
+  const [onglet, setOnglet] = useState('messages')
+  const [repasSelectionneChat, setRepasSelectionneChat] = useState(null)
+  const [messagesRepas, setMessagesRepas] = useState([])
+
+  useEffect(() => {
+    async function charger() {
+      const { data: m } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100)
+      if (m) setMessages(m)
+      const { data: u } = await supabase.from('profils').select('*')
+      if (u) setUtilisateurs(u)
+      const { data: r } = await supabase.from('repas').select('*').order('id', { ascending: false })
+      if (r) setRepas(r)
+    }
+    charger()
+    const canal = supabase
+      .channel('admin-messages')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => charger())
+      .subscribe()
+    return () => {
+      supabase.removeChannel(canal)
+    }
+  }, [])
+
+  async function chargerMessagesRepas(repasId) {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('repas_id', repasId)
+      .order('created_at', { ascending: true })
+    if (data) setMessagesRepas(data)
+    setRepasSelectionneChat(repasId)
+  }
+
+  async function supprimerMessage(id) {
+    await supabase.from('messages').delete().eq('id', id)
+    setMessages(messages.filter((m) => m.id !== id))
+    setMessagesRepas(messagesRepas.filter((m) => m.id !== id))
+  }
+
+  async function viderToutChat() {
+    if (window.confirm('Vider tous les messages globaux ?')) {
+      await supabase.from('messages').delete().is('repas_id', null)
+      setMessages(messages.filter((m) => m.repas_id))
+    }
+  }
+
+  const messagesGlobal = messages.filter((m) => !m.repas_id)
+
+  return (
+    <div>
+      <div
+        style={{
+          background: '#222',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <span
+          style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#FFD600', flex: 1 }}
+        >
+          Panel Admin 🔧
+        </span>
+      </div>
+      <div style={{ display: 'flex', background: '#333', padding: '4px', overflowX: 'auto' }}>
+        {[
+          ['messages', '💬 Chat'],
+          ['chatsrepas', '🍽️ Chats'],
+          ['utilisateurs', '👥 Membres'],
+          ['repas', '📋 Repas'],
+        ].map(([id, label]) => (
+          <div
+            key={id}
+            onClick={() => {
+              setOnglet(id)
+              setRepasSelectionneChat(null)
+            }}
+            style={{
+              flex: 1,
+              padding: '8px',
+              textAlign: 'center',
+              borderRadius: '8px',
+              background: onglet === id ? '#FF6B35' : 'transparent',
+              color: '#fff',
+              fontSize: '11px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              minWidth: '70px',
+            }}
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+      {onglet === 'messages' && (
+        <div style={{ padding: '14px 16px' }}>
+          <div
+            onClick={viderToutChat}
+            style={{
+              background: '#FF3B30',
+              borderRadius: '12px',
+              padding: '10px',
+              textAlign: 'center',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#fff',
+              cursor: 'pointer',
+              marginBottom: '12px',
+            }}
+          >
+            🗑️ Vider tout le chat global
+          </div>
+          {messagesGlobal.map((m) => (
+            <div
+              key={m.id}
+              style={{
+                background: '#fff',
+                borderRadius: '12px',
+                border: '1.5px solid #FFE5D0',
+                padding: '10px 12px',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '8px',
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: '10px',
+                    color: '#aaa',
+                    fontWeight: '600',
+                    marginBottom: '4px',
+                  }}
+                >
+                  {new Date(m.created_at).toLocaleString('fr-FR')}
+                </div>
+                <div style={{ fontSize: '13px', color: '#222', fontWeight: '600' }}>
+                  {m.contenu}
+                </div>
+              </div>
+              <div
+                onClick={() => supprimerMessage(m.id)}
+                style={{
+                  background: '#FF3B30',
+                  borderRadius: '8px',
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  color: '#fff',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                🗑️
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {onglet === 'chatsrepas' && (
+        <div style={{ padding: '14px 16px' }}>
+          {repasSelectionneChat ? (
+            <>
+              <div
+                onClick={() => setRepasSelectionneChat(null)}
+                style={{
+                  color: '#FF6B35',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  marginBottom: '12px',
+                }}
+              >
+                ← Retour
+              </div>
+              {messagesRepas.map((m) => (
+                <div
+                  key={m.id}
+                  style={{
+                    background: '#fff',
+                    borderRadius: '12px',
+                    border: '1.5px solid #FFE5D0',
+                    padding: '10px 12px',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '8px',
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: '10px',
+                        color: '#aaa',
+                        fontWeight: '600',
+                        marginBottom: '4px',
+                      }}
+                    >
+                      {new Date(m.created_at).toLocaleString('fr-FR')}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#222', fontWeight: '600' }}>
+                      {m.contenu}
+                    </div>
+                  </div>
+                  <div
+                    onClick={() => supprimerMessage(m.id)}
+                    style={{
+                      background: '#FF3B30',
+                      borderRadius: '8px',
+                      padding: '4px 8px',
+                      fontSize: '11px',
+                      color: '#fff',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                    }}
+                  >
+                    🗑️
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
+            repas.map((r) => {
+              const nbMsg = messages.filter((m) => m.repas_id === r.id).length
+              return (
+                <div
+                  key={r.id}
+                  onClick={() => chargerMessagesRepas(r.id)}
+                  style={{
+                    background: '#fff',
+                    borderRadius: '12px',
+                    border: '1.5px solid #FFE5D0',
+                    padding: '12px',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ fontSize: '24px' }}>{r.emoji}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
+                      {r.titre}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#aaa' }}>{nbMsg} messages</div>
+                  </div>
+                  <span style={{ fontSize: '16px', color: '#ccc' }}>›</span>
+                </div>
+              )
+            })
+          )}
+        </div>
+      )}
+      {onglet === 'utilisateurs' && (
+        <div style={{ padding: '14px 16px' }}>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
+            {utilisateurs.length} membres
+          </div>
+          {utilisateurs.map((u) => (
+            <div
+              key={u.id}
+              style={{
+                background: '#fff',
+                borderRadius: '12px',
+                border: '1.5px solid #FFE5D0',
+                padding: '10px 12px',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              <div
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: '#FFE5D0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                  flexShrink: 0,
+                }}
+              >
+                {u.photo_url ? (
+                  <img
+                    src={u.photo_url}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  '👤'
+                )}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
+                  {u.prenom || 'Anonyme'}
+                </div>
+                <div style={{ fontSize: '11px', color: '#aaa', fontWeight: '600' }}>
+                  📍 {u.ville || 'France'}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {onglet === 'repas' && (
+        <div style={{ padding: '14px 16px' }}>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
+            {repas.length} repas
+          </div>
+          {repas.map((r) => (
+            <div
+              key={r.id}
+              style={{
+                background: '#fff',
+                borderRadius: '12px',
+                border: '1.5px solid #FFE5D0',
+                padding: '10px 12px',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              <div style={{ fontSize: '24px' }}>{r.emoji}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>{r.titre}</div>
+                <div style={{ fontSize: '11px', color: '#aaa' }}>
+                  📍 {r.ville || 'France'} · {r.date}
+                </div>
+              </div>
+              <div
+                onClick={async () => {
+                  if (window.confirm('Supprimer ce repas ?')) {
+                    await supabase.from('repas').delete().eq('id', r.id)
+                    setRepas(repas.filter((rep) => rep.id !== r.id))
+                  }
+                }}
+                style={{
+                  background: '#FF3B30',
+                  borderRadius: '8px',
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  color: '#fff',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                }}
+              >
+                🗑️
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function EcranMessagesPrive({ setEcran, user, membreId }) {
+  const [messages, setMessages] = useState([])
+  const [texte, setTexte] = useState('')
+  const [profil, setProfil] = useState(null)
+  const [membreProfil, setMembreProfil] = useState(null)
+  const [messageSelectionne, setMessageSelectionne] = useState(null)
+  const messagesRef = useRef(null)
+
+  useEffect(() => {
+    if (!membreId) return
+    async function charger() {
+      const { data: p } = await supabase.from('profils').select('*').eq('id', user.id).single()
+      setProfil(p)
+      const { data: mp } = await supabase.from('profils').select('*').eq('id', membreId).single()
+      setMembreProfil(mp)
+      const { data: m } = await supabase
+        .from('messages_prives')
+        .select('*')
+        .or(
+          `and(expediteur_id.eq.${user.id},destinataire_id.eq.${membreId}),and(expediteur_id.eq.${membreId},destinataire_id.eq.${user.id})`,
+        )
+        .order('created_at', { ascending: true })
+      if (m) setMessages(m)
+    }
+    charger()
+    const canal = supabase
+      .channel('mp-' + user.id + '-' + membreId)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages_prives' },
+        (payload) => {
+          if (
+            (payload.new.expediteur_id === user.id && payload.new.destinataire_id === membreId) ||
+            (payload.new.expediteur_id === membreId && payload.new.destinataire_id === user.id)
+          ) {
+            setMessages((prev) => [...prev, payload.new])
+          }
+        },
+      )
+      .subscribe()
+    return () => {
+      supabase.removeChannel(canal)
+    }
+  }, [membreId])
+
+  useEffect(() => {
+    if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+  }, [messages])
+
+  async function envoyer() {
+    if (!texte.trim()) return
+    await supabase
+      .from('messages_prives')
+      .insert({ expediteur_id: user.id, destinataire_id: membreId, contenu: texte })
+    setTexte('')
+  }
+
+  async function supprimerMessage(id) {
+    await supabase.from('messages_prives').delete().eq('id', id)
+    setMessages((prev) => prev.filter((m) => m.id !== id))
+  }
+
+  async function modifierMessage(id, nouveau) {
+    await supabase.from('messages_prives').update({ contenu: nouveau }).eq('id', id)
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, contenu: nouveau } : m)))
+  }
+
+  if (!membreId) return null
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {messageSelectionne && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.3)',
+            zIndex: 99,
+          }}
+          onClick={() => setMessageSelectionne(null)}
+        />
+      )}
+      {messageSelectionne && (
+        <MenuMessage
+          message={messageSelectionne}
+          user={user}
+          onFermer={() => setMessageSelectionne(null)}
+          onSupprimer={supprimerMessage}
+          onModifier={modifierMessage}
+        />
+      )}
+      <div
+        style={{
+          background: '#FF6B35',
+          padding: '10px 16px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <div
+          onClick={() => setEcran('accueil')}
+          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
+        >
+          ←
+        </div>
+        <div style={{ flex: 1 }}>
+          <span style={{ fontFamily: 'Pacifico, cursive', fontSize: '16px', color: '#fff' }}>
+            Message privé ✉️
+          </span>
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+            {membreProfil?.prenom || 'Membre'}
+          </div>
+        </div>
+      </div>
+      <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+        {messages.length === 0 && (
+          <div style={{ textAlign: 'center', color: '#aaa', fontSize: '13px', marginTop: '40px' }}>
+            Aucun message — dis bonjour ! 👋
+          </div>
+        )}
+        {messages.map((m) => (
+          <div
+            key={m.id}
+            style={{
+              marginBottom: '12px',
+              display: 'flex',
+              flexDirection: m.expediteur_id === user.id ? 'row-reverse' : 'row',
+              gap: '8px',
+              alignItems: 'flex-end',
+            }}
+          >
+            <div
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: '#FFE5D0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                flexShrink: 0,
+              }}
+            >
+              👤
+            </div>
+            <div>
+              <div
+                style={{
+                  fontSize: '10px',
+                  color: '#aaa',
+                  fontWeight: '600',
+                  marginBottom: '2px',
+                  textAlign: m.expediteur_id === user.id ? 'right' : 'left',
+                }}
+              >
+                {m.expediteur_id === user.id
+                  ? profil?.prenom || 'Moi'
+                  : membreProfil?.prenom || 'Membre'}
+              </div>
+              <div
+                onClick={() => {
+                  if (m.expediteur_id === user.id) setMessageSelectionne(m)
+                }}
+                style={{
+                  background: m.expediteur_id === user.id ? '#FF6B35' : '#fff',
+                  color: m.expediteur_id === user.id ? '#fff' : '#222',
+                  borderRadius: '14px',
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  border: '1.5px solid #FFE5D0',
+                  maxWidth: '220px',
+                  cursor: m.expediteur_id === user.id ? 'pointer' : 'default',
+                }}
+              >
+                {m.contenu}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div
+        style={{
+          padding: '10px 16px',
+          background: '#fff',
+          borderTop: '1.5px solid #FFE5D0',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center',
+        }}
+      >
+        <input
+          value={texte}
+          onChange={(e) => setTexte(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && envoyer()}
+          placeholder="Message privé..."
           style={{
             flex: 1,
             background: '#FFF8F0',
@@ -2597,8 +3455,7 @@ function EcranCGU({ setEcran }) {
         </h3>
         <p>
           L'utilisateur peut supprimer son compte à tout moment en contactant
-          scorpio13860@hotmail.fr. Mange Chez Moi se réserve le droit de suspendre un compte en cas
-          de non-respect des CGU.
+          scorpio13860@hotmail.fr.
         </p>
         <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '14px 0 6px', color: '#FF6B35' }}>
           7. Droit applicable
@@ -2752,238 +3609,13 @@ function EcranConfidentialite({ setEcran }) {
     </div>
   )
 }
-function EcranAdmin({ setEcran, user }) {
-  const [messages, setMessages] = useState([])
-  const [utilisateurs, setUtilisateurs] = useState([])
-  const [onglet, setOnglet] = useState('messages')
 
-  useEffect(() => {
-    async function charger() {
-      const { data: m } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50)
-      if (m) setMessages(m)
-      const { data: u } = await supabase.from('profils').select('*')
-      if (u) setUtilisateurs(u)
-    }
-    charger()
-
-    const canal = supabase
-      .channel('admin-messages')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
-        charger()
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(canal)
-    }
-  }, [])
-
-  async function supprimerMessage(id) {
-    await supabase.from('messages').delete().eq('id', id)
-    setMessages(messages.filter((m) => m.id !== id))
-  }
-
-  async function viderToutChat() {
-    if (window.confirm('Vider tous les messages ?')) {
-      await supabase.from('messages').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-      setMessages([])
-    }
-  }
-
-  return (
-    <div>
-      <div
-        style={{
-          background: '#222',
-          padding: '10px 16px 14px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-        }}
-      >
-        <div
-          onClick={() => setEcran('accueil')}
-          style={{ color: '#fff', fontSize: '18px', cursor: 'pointer' }}
-        >
-          ←
-        </div>
-        <span
-          style={{ fontFamily: 'Pacifico, cursive', fontSize: '18px', color: '#FFD600', flex: 1 }}
-        >
-          Panel Admin 🔧
-        </span>
-      </div>
-      <div style={{ display: 'flex', background: '#333', padding: '4px' }}>
-        <div
-          onClick={() => setOnglet('messages')}
-          style={{
-            flex: 1,
-            padding: '8px',
-            textAlign: 'center',
-            borderRadius: '8px',
-            background: onglet === 'messages' ? '#FF6B35' : 'transparent',
-            color: '#fff',
-            fontSize: '12px',
-            fontWeight: '700',
-            cursor: 'pointer',
-          }}
-        >
-          💬 Messages ({messages.length})
-        </div>
-        <div
-          onClick={() => setOnglet('utilisateurs')}
-          style={{
-            flex: 1,
-            padding: '8px',
-            textAlign: 'center',
-            borderRadius: '8px',
-            background: onglet === 'utilisateurs' ? '#FF6B35' : 'transparent',
-            color: '#fff',
-            fontSize: '12px',
-            fontWeight: '700',
-            cursor: 'pointer',
-          }}
-        >
-          👥 Membres ({utilisateurs.length})
-        </div>
-      </div>
-      {onglet === 'messages' && (
-        <div style={{ padding: '14px 16px' }}>
-          <div
-            onClick={viderToutChat}
-            style={{
-              background: '#FF3B30',
-              borderRadius: '12px',
-              padding: '10px',
-              textAlign: 'center',
-              fontSize: '13px',
-              fontWeight: '700',
-              color: '#fff',
-              cursor: 'pointer',
-              marginBottom: '12px',
-            }}
-          >
-            🗑️ Vider tout le chat
-          </div>
-          {messages.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                background: '#fff',
-                borderRadius: '12px',
-                border: '1.5px solid #FFE5D0',
-                padding: '10px 12px',
-                marginBottom: '8px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '8px',
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: '10px',
-                    color: '#aaa',
-                    fontWeight: '600',
-                    marginBottom: '4px',
-                  }}
-                >
-                  {new Date(m.created_at).toLocaleString('fr-FR')} ·{' '}
-                  {m.repas_id ? '💬 Chat repas' : '🌍 Chat global'}
-                </div>
-                <div style={{ fontSize: '13px', color: '#222', fontWeight: '600' }}>
-                  {m.contenu}
-                </div>
-              </div>
-              <div
-                onClick={() => supprimerMessage(m.id)}
-                style={{
-                  background: '#FF3B30',
-                  borderRadius: '8px',
-                  padding: '4px 8px',
-                  fontSize: '11px',
-                  color: '#fff',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                }}
-              >
-                🗑️
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      {onglet === 'utilisateurs' && (
-        <div style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: '13px', fontWeight: '800', color: '#222', marginBottom: '12px' }}>
-            {utilisateurs.length} membres inscrits
-          </div>
-          {utilisateurs.map((u) => (
-            <div
-              key={u.id}
-              style={{
-                background: '#fff',
-                borderRadius: '12px',
-                border: '1.5px solid #FFE5D0',
-                padding: '10px 12px',
-                marginBottom: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  background: '#FFE5D0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                  flexShrink: 0,
-                }}
-              >
-                {u.photo_url ? (
-                  <img
-                    src={u.photo_url}
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                ) : (
-                  '👤'
-                )}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '13px', fontWeight: '800', color: '#222' }}>
-                  {u.prenom || 'Anonyme'}
-                </div>
-                <div style={{ fontSize: '11px', color: '#aaa', fontWeight: '600' }}>
-                  📍 {u.ville || 'France'}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 function App() {
   const [ecran, setEcran] = useState('accueil')
   const [user, setUser] = useState(null)
   const [repasSelectionne, setRepasSelectionne] = useState(null)
   const [repasChat, setRepasChat] = useState(null)
+  const [membreMessage, setMembreMessage] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -2998,10 +3630,18 @@ function App() {
     setEcran('chatrepas')
   }
 
+  function ouvrirMessagePrive(membreId) {
+    setMembreMessage(membreId)
+    setEcran('messagesprive')
+  }
+
   return (
     <div>
       {ecran === 'notifications' && <EcranNotifications setEcran={setEcran} />}
       {ecran === 'accueil' && <EcranAccueil setEcran={setEcran} user={user} />}
+      {ecran === 'membres' && (
+        <EcranMembers setEcran={setEcran} user={user} onMessagePrive={ouvrirMessagePrive} />
+      )}
       {ecran === 'chercher' && (
         <EcranChercher setEcran={setEcran} user={user} onChatRepas={ouvrirChatRepas} />
       )}
@@ -3012,19 +3652,22 @@ function App() {
       {ecran === 'notation' && (
         <EcranNotation setEcran={setEcran} user={user} repasId={repasSelectionne} />
       )}
-      {ecran === 'classement' && <EcranClassement setEcran={setEcran} />}
+      {ecran === 'classement' && (
+        <EcranClassement setEcran={setEcran} onMessagePrive={ouvrirMessagePrive} />
+      )}
       {ecran === 'profil' && <EcranProfil setEcran={setEcran} setUser={setUser} user={user} />}
       {ecran === 'chat' && <EcranChat setEcran={setEcran} user={user} />}
       {ecran === 'chatrepas' && (
         <EcranChatRepas setEcran={setEcran} user={user} repasId={repasChat} />
       )}
+      {ecran === 'admin' && user.id === ADMIN_ID && <EcranAdmin setEcran={setEcran} user={user} />}
+      {ecran === 'messagesprive' && (
+        <EcranMessagesPrive setEcran={setEcran} user={user} membreId={membreMessage} />
+      )}
       {ecran === 'cgu' && <EcranCGU setEcran={setEcran} />}
       {ecran === 'mentions' && <EcranMentions setEcran={setEcran} />}
       {ecran === 'confidentialite' && <EcranConfidentialite setEcran={setEcran} />}
       <Nav ecran={ecran} setEcran={setEcran} />
-      {ecran === 'admin' && user.id === 'd89917e9-93b3-40a8-aca2-54627992354b' && (
-        <EcranAdmin setEcran={setEcran} user={user} />
-      )}
     </div>
   )
 }
